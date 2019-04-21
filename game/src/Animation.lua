@@ -3,18 +3,28 @@
 local Animation = {}
 
 -- 初期化
-function Animation:initialize(animations, duration)
+function Animation:initialize(...)
     self.animation = {}
-    self:resetAnimations(animations, duration)
+    self:resetAnimations(...)
 end
 
 -- 現在のアニメーションを返す
-function Animation:resetAnimations(animations, duration)
+function Animation:resetAnimations(animations, index, duration)
     local anim = self.animation
     anim.animations = animations or {}
-    anim.index = 1
-    anim.duration = duration or 0.1
+    self:resetAnimationIndex(index)
+    self:resetAnimationDuration(duration or anim.duration)
     anim.timer = anim.duration
+end
+
+-- アニメーションのインデックスを設定する
+function Animation:resetAnimationIndex(index)
+    self.animation.index = index or 1
+end
+
+-- アニメーションの間隔を設定する
+function Animation:resetAnimationDuration(duration)
+    self.animation.duration = duration or 0.1
 end
 
 -- 現在のアニメーションを返す
@@ -23,7 +33,7 @@ function Animation:getCurrentAnimation()
 end
 
 -- 更新
-function Animation:update(dt)
+function Animation:updateAnimation(dt)
     local anim = self.animation
 
     -- タイマーを減らす

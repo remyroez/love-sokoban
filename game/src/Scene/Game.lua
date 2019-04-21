@@ -10,6 +10,7 @@ local Game = Scene:addState('game', Scene)
 -- ゲーム: 読み込み
 function Game:load()
     self.player = Player(self.sprite, 300, 300, 84, 100)
+    self.player:gotoState('stand')
 end
 
 -- ゲーム: 更新
@@ -24,6 +25,7 @@ end
 
 -- ゲーム: キー入力
 function Game:keypressed(key, scancode, isrepeat)
+    self.player:keypressed(key, scancode, isrepeat)
 end
 
 -- ゲーム: マウス入力

@@ -47,10 +47,10 @@ function Player:initialize(sprite, x, y, w, h)
     -- モジュールの初期化
     Sprite.initialize(self, sprite)
     Rectangle.initialize(self, x, y, w, h)
+    Animation.initialize(self)
 
-    -- 現在のスプライト
-    self.direction = 'right'
-    Animation.initialize(self, self:currentSpriteNameTable())
+    self:resetDirection()
+    self:resetAnimationDuration(0.2)
 
     -- 初期座標
     self.begin_x = self.x
@@ -65,7 +65,7 @@ end
 
 -- 更新
 function Player:update(dt)
-    Animation.update(self, dt)
+    --self:updateAnimation(dt)
 end
 
 -- 描画
@@ -74,9 +74,47 @@ function Player:draw()
     --self:drawRectangle()
 end
 
--- 更新
+-- キー入力
+function Player:keypressed(key, scancode, isrepeat)
+end
+
+-- 現在の方向のスプライト名テーブルを返す
 function Player:currentSpriteNameTable()
     return spriteNames[self.direction]
+end
+
+-- 方向を設定する
+function Player:resetDirection(direction, index)
+    self.direction = direction or 'down'
+    self:resetAnimations(self:currentSpriteNameTable(), index or 2)
+end
+
+-- 立つステート
+local Stand = Player:addState 'stand'
+
+-- 立つ: ステート開始
+function Stand:enteredState(direction)
+    self:resetDirection(direction)
+end
+
+-- キー入力
+function Stand:keypressed(key, scancode, isrepeat)
+    if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
+        self:gotoState('walk', key)
+    end
+end
+
+-- 歩くステート
+local Walk = Player:addState 'walk'
+
+-- 歩く: ステート開始
+function Walk:enteredState(direction)
+    self:resetDirection(direction)
+end
+
+-- 歩く: 更新
+function Walk:update(dt)
+    self:updateAnimation(dt)
 end
 
 return Player
