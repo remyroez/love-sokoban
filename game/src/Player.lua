@@ -100,7 +100,7 @@ function Stand:enteredState(direction)
     self:resetDirection(direction)
 end
 
--- キー入力
+-- 立つ: キー入力
 function Stand:keypressed(key, scancode, isrepeat)
     if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
         self:gotoState('walk', key, 100, 100, 1)
