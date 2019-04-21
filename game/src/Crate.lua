@@ -14,12 +14,39 @@ Crate:include(Sprite)
 Crate:include(Rectangle)
 Crate:include(Movement)
 
+-- スプライト名
+local spriteNames = {
+    wood = {
+        default = 'crate_02.png',
+        fit = 'crate_12.png',
+    },
+    red = {
+        default = 'crate_03.png',
+        fit = 'crate_13.png',
+    },
+    blue = {
+        default = 'crate_04.png',
+        fit = 'crate_14.png',
+    },
+    green = {
+        default = 'crate_05.png',
+        fit = 'crate_15.png',
+    },
+    metal = {
+        default = 'crate_06.png',
+        fit = 'crate_16.png',
+    },
+}
+
 -- 初期化
 function Crate:initialize(sprite, x, y, w, h)
     -- モジュールの初期化
     Sprite.initialize(self, sprite)
     Rectangle.initialize(self, x, y, w, h)
     Movement.initialize(self)
+
+    self.type = 'metal'
+    self.fit = false
 
     -- 初期座標
     self.begin_x = self.x
@@ -38,7 +65,12 @@ end
 
 -- 描画
 function Crate:draw()
-    self:drawSprite('crate_02.png', self.x, self.y)
+    self:drawSprite(self:getCurrentSpriteName(), self.x, self.y)
+end
+
+-- 描画
+function Crate:getCurrentSpriteName()
+    return spriteNames[self.type][self.fit and 'fit' or 'default']
 end
 
 -- 設置ステート
@@ -66,6 +98,7 @@ function Move:update(dt)
     self:updateMovement(dt)
 
     if not self:isMoving() then
+        self.fit = true
         self:popState()
     end
 end

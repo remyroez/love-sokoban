@@ -13,7 +13,7 @@ function Game:load()
     self.player = Player(self.sprite, 300, 300, 84, 100)
     self.player:gotoState('stand')
     
-    self.crate = Crate(self.sprite, 500, 500, 128, 128)
+    self.crate = Crate(self.sprite, 100, 100, 128, 128)
     self.crate:gotoState('place')
 end
 
