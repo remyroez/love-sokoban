@@ -3,6 +3,7 @@ local folderOfThisFile = (...):match("(.-)[^%/%.]+$")
 local Scene = require(folderOfThisFile .. 'Scene')
 
 local Player = require 'Player'
+local Crate = require 'Crate'
 
 -- ゲーム
 local Game = Scene:addState('game', Scene)
@@ -11,21 +12,27 @@ local Game = Scene:addState('game', Scene)
 function Game:load()
     self.player = Player(self.sprite, 300, 300, 84, 100)
     self.player:gotoState('stand')
+    
+    self.crate = Crate(self.sprite, 500, 500, 128, 128)
+    self.crate:gotoState('place')
 end
 
 -- ゲーム: 更新
 function Game:update(dt)
     self.player:update(dt)
+    self.crate:update(dt)
 end
 
 -- ゲーム: 描画
 function Game:draw()
     self.player:draw()
+    self.crate:draw()
 end
 
 -- ゲーム: キー入力
 function Game:keypressed(key, scancode, isrepeat)
-    self.player:keypressed(key, scancode, isrepeat)
+    --self.player:keypressed(key, scancode, isrepeat)
+    self.crate:move(key)
 end
 
 -- ゲーム: マウス入力
