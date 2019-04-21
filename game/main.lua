@@ -13,7 +13,6 @@ local scene
 function love.load()
     -- シーンの作成とロード
     scene = Scene()
-    scene:load()
 end
 
 -- 更新
