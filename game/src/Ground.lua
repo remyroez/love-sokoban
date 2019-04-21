@@ -32,8 +32,7 @@ function Ground:initialize(sprite, x, y, w, h)
     Sprite.initialize(self, sprite)
 
     -- タイプ
-    self.type = 'stone'
-    self.mark = 'wood'
+    self:setType('stone')
 
     -- 地面スプライトのサイズを取得
     local sw, sh = self:getSpriteSize(self:getGroundSpriteName())
@@ -55,6 +54,12 @@ function Ground:draw()
     if self.mark then
         self:drawSprite(self:getMarkSpriteName(), self.x, self.y)
     end
+end
+
+-- タイプの設定
+function Ground:setType(type, mark)
+    self.type = type or 'stone'
+    self.mark = mark
 end
 
 -- 地面のスプライト名を返す

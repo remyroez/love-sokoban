@@ -1,6 +1,6 @@
 
 -- グローバルに影響があるライブラリ
-require 'autobatch'
+--require 'autobatch'
 require 'sbss'
 
 -- シーンクラス

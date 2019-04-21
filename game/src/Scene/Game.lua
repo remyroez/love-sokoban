@@ -6,6 +6,7 @@ local Player = require 'Player'
 local Crate = require 'Crate'
 local Block = require 'Block'
 local Ground = require 'Ground'
+local Level = require 'Level'
 
 -- ゲーム
 local Game = Scene:addState('game', Scene)
@@ -19,7 +20,10 @@ function Game:load()
     self.crate:gotoState('place')
 
     self.block = Block(self.sprite, 500, 200)
-    self.ground = Ground(self.sprite, 500, 400)
+
+    --self.ground = Ground(self.sprite, 500, 400)
+    
+    self.level = Level(self.sprite)
 
     self.state.drawRectangle = false
 end
@@ -32,17 +36,17 @@ end
 
 -- ゲーム: 描画
 function Game:draw()
+    self.level:draw()
     self.player:draw()
     self.crate:draw()
     self.block:draw()
-    self.ground:draw()
 
     -- 矩形の描画
     if self.state.drawRectangle then
         self.player:drawRectangle()
         self.crate:drawRectangle()
         self.block:drawRectangle()
-        self.ground:drawRectangle()
+        self.level:drawRectangle()
     end
 end
 
