@@ -9,7 +9,7 @@ end
 
 -- ステート名を返す
 local function _getStateName(self, target)
-    for name,state in pairs(self.class.static.states) do
+    for name, state in pairs(self.class.static.states) do
         if state == target then return name end
     end
 end
@@ -40,10 +40,14 @@ end
 function Scene:draw()
 end
 
--- シーン: ステート開始
-function Scene:enteredState(...)
-    -- 現在のステート名
-    local name = _getCurrentStateName(self)
+-- シーン: ステートの描画
+function Scene:printStates()
+    love.graphics.print('states: ' .. table.concat(self:getStateStackDebugInfo(), '/'))
+end
+
+-- シーン: ステート用テーブル
+function Scene:getState(name)
+    local name = name or _getCurrentStateName(self)
 
     -- 現在のステート用テーブルが無ければ準備, load を呼ぶ
     if self.stateObjects[name] == nil then
@@ -51,8 +55,13 @@ function Scene:enteredState(...)
         self:load()
     end
 
-    -- テーブルを state にセット
-    self.state = self.stateObjects[name]
+    return self.stateObjects[name]
+end
+
+-- シーン: ステート開始
+function Scene:enteredState(...)
+    -- 現在のステート用テーブルを準備
+    self.state = self:getState()
 end
 
 -- シーン: ステート終了
