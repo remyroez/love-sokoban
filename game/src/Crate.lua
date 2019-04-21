@@ -68,7 +68,7 @@ function Crate:draw()
     self:drawSprite(self:getCurrentSpriteName(), self.x, self.y)
 end
 
--- 描画
+-- 現在のスプライト名を返す
 function Crate:getCurrentSpriteName()
     return spriteNames[self.type][self.fit and 'fit' or 'default']
 end
