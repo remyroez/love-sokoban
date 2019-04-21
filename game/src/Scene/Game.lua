@@ -30,6 +30,7 @@ end
 
 -- ゲーム: 更新
 function Game:update(dt)
+    self.level:update(dt)
     self.player:update(dt)
     self.crate:update(dt)
 end

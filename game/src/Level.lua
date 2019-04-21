@@ -1,9 +1,11 @@
 
 local class = require 'middleclass'
 
+-- クラス
 local Layer = require 'Layer'
 local Ground = require 'Ground'
 local Block = require 'Block'
+local Crate = require 'Crate'
 
 -- モジュール
 local Rectangle = require 'Rectangle'
@@ -11,6 +13,12 @@ local Rectangle = require 'Rectangle'
 -- レベルクラス
 local Level = class 'Level'
 Level:include(Rectangle)
+
+-- レイヤー名
+local layerNames = {
+    'ground',
+    'entity'
+}
 
 -- 初期化
 function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVertical)
@@ -23,8 +31,8 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
     -- 変数
     self.sprites = sprites
     self.layers = {
-        ground = Layer(unitWidth, unitHeight, numHorizontal, numVertical),
-        entity = Layer(unitWidth, unitHeight, numHorizontal, numVertical)
+        ground = Layer(self.sprites.spriteSheet, unitWidth, unitHeight, numHorizontal, numVertical),
+        entity = Layer(self.sprites.spriteSheet, unitWidth, unitHeight, numHorizontal, numVertical)
     }
 
     -- マスの準備
@@ -34,50 +42,72 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
         end
     end
 
-    self:setSquare(1, 1, 'entity', Block(self.sprites, self:toPixelPosition(0, 0)))
+    -- テスト配置
+    self:setSquare(2, 2, 'entity', Block(self.sprites, self:toPixelPosition(1, 1)))
+    self:setSquare(4, 5, 'entity', Crate(self.sprites, self:toPixelPosition(3, 4)))
 
     -- モジュールの初期化
     Rectangle.initialize(self, 0, 0, self:pixelWidth(), self:pixelHeight())
+
+    -- スプライトバッチのビルド
+    self:buildSpriteBatch()
 end
 
 -- 更新
 function Level:update(dt)
+    for name, layer in pairs(self.layers) do
+        layer:update(dt)
+    end
 end
 
 -- 描画
 function Level:draw()
-    self.layers.ground:draw()
-    self.layers.entity:draw()
+    for i, name in ipairs(layerNames) do
+        self.layers[name]:draw()
+    end
+end
+
+-- レイヤーを返す
+function Level:getLayer(z)
+    return self.layers[z or 'ground']
 end
 
 -- ピクセル座標に変換する
-function Level:toPixelPosition(x, y)
-    return self.layers.ground:toPixelPosition(x, y)
+function Level:toPixelPosition(x, y, z)
+    return self:getLayer(z):toPixelPosition(x, y)
 end
 
 -- レベル座標に変換する
-function Level:toLevelPosition(x, y)
-    return self.layers.ground:toLevelPosition(x, y)
+function Level:toLevelPosition(x, y, z)
+    return self:getLayer(z):toLevelPosition(x, y)
 end
 
--- 幅
-function Level:pixelWidth()
-    return self.layers.ground:pixelWidth()
+-- ピクセル幅
+function Level:pixelWidth(z)
+    return self:getLayer(z):pixelWidth()
 end
 
--- 高さ
-function Level:pixelHeight()
-    return self.layers.ground:pixelHeight()
+-- ピクセル高さ
+function Level:pixelHeight(z)
+    return self:getLayer(z):pixelHeight()
 end
 
 -- マスを取得
 function Level:getSquare(x, y, z)
-    return self.layers[z]:getSquare(x, y)
+    return self:getLayer(z):getSquare(x, y)
 end
 
 -- マスを設定
 function Level:setSquare(x, y, z, it)
-    self.layers[z]:setSquare(x, y, it)
+    self:getLayer(z):setSquare(x, y, it)
+end
+
+-- スプライトバッチのビルド
+function Level:buildSpriteBatch()
+    -- 各レイヤーのスプライトバッチのビルド
+    for name, layer in pairs(self.layers) do
+        layer:buildSpriteBatch()
+    end
 end
 
 return Level

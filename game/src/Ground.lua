@@ -72,4 +72,15 @@ function Ground:getMarkSpriteName()
     return spriteNames.mark[self.mark]
 end
 
+-- スプライトバッチへ追加
+function Ground:addCurrentSpriteToBatch(spriteBatch)
+    -- 地面の描画
+    self:addSpriteToBatch(spriteBatch, self:getGroundSpriteName(), self.x, self.y)
+    
+    -- マークの描画
+    if self.mark then
+        self:addSpriteToBatch(spriteBatch, self:getMarkSpriteName(), self.x, self.y)
+    end
+end
+
 return Ground

@@ -79,6 +79,11 @@ function Crate:getCurrentSpriteName()
     return spriteNames[self.type][self.fit and 'fit' or 'default']
 end
 
+-- スプライトバッチへ追加
+function Crate:addCurrentSpriteToBatch(spriteBatch)
+    self:addSpriteToBatch(spriteBatch, self:getCurrentSpriteName(), self.x, self.y)
+end
+
 -- 設置ステート
 local Place = Crate:addState 'place'
 

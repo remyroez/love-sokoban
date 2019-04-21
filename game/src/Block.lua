@@ -47,4 +47,9 @@ function Block:getCurrentSpriteName()
     return spriteNames[self.type]
 end
 
+-- スプライトバッチへ追加
+function Block:addCurrentSpriteToBatch(spriteBatch)
+    self:addSpriteToBatch(spriteBatch, self:getCurrentSpriteName(), self.x, self.y)
+end
+
 return Block

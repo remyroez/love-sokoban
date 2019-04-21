@@ -4,14 +4,17 @@ local class = require 'middleclass'
 -- モジュール
 local Rectangle = require 'Rectangle'
 
+-- エイリアス
+local lg = love.graphics
+
 -- レイヤークラス
 local Layer = class 'Layer'
 Layer:include(Rectangle)
 
 -- 初期化
-function Layer:initialize(unitWidth, unitHeight, numHorizontal, numVertical)
+function Layer:initialize(image, unitWidth, unitHeight, numHorizontal, numVertical)
     -- 変数
-    self.sprites = sprites
+    self.spriteBatch = lg.newSpriteBatch(image, numHorizontal * numVertical * 2)
     self.unitWidth = unitWidth or 128
     self.unitHeight = unitHeight or 128
     self.numHorizontal = numHorizontal or 10
@@ -22,22 +25,23 @@ function Layer:initialize(unitWidth, unitHeight, numHorizontal, numVertical)
 
     -- モジュールの初期化
     Rectangle.initialize(self, 0, 0, self:pixelWidth(), self:pixelHeight())
+
+    -- 変更フラグ
+    self.dirty = false
 end
 
 -- 更新
 function Layer:update(dt)
+    -- 内容に変化があればスプライトバッチをリビルド
+    if self.dirty then
+        self:buildSpriteBatch()
+        self.dirty = false
+    end
 end
 
 -- 描画
 function Layer:draw()
-    for y = 1, self.numVertical do
-        for x = 1, self.numHorizontal do
-            local square = self:getSquare(x, y)
-            if square then
-                square:draw()
-            end
-        end
-    end
+    lg.draw(self.spriteBatch, self.x, self.y)
 end
 
 -- ピクセル座標に変換する
@@ -74,6 +78,23 @@ function Layer:setSquare(x, y, it)
         self.squares[y] = {}
     end
     self.squares[y][x] = it
+    self.dirty = true
+end
+
+-- スプライトバッチのビルド
+function Layer:buildSpriteBatch()
+    -- スプライトバッチのクリア
+    self.spriteBatch:clear()
+
+    -- 各マスをスプライトバッチに追加
+    for y = 1, self.numVertical do
+        for x = 1, self.numHorizontal do
+            local square = self:getSquare(x, y)
+            if square then
+                square:addCurrentSpriteToBatch(self.spriteBatch)
+            end
+        end
+    end
 end
 
 return Layer

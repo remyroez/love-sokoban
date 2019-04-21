@@ -26,4 +26,10 @@ function Sprite:drawSprite(name, x, y)
     self.spriteSheet:draw(name, x - w / 2, y - h / 2)
 end
 
+-- スプライトバッチへ追加
+function Sprite:addSpriteToBatch(spriteBatch, name, x, y)
+    local w, h = self:getSpriteSize(name)
+    spriteBatch:add(self:getSprite(name), x - w / 2, y - h / 2)
+end
+
 return Sprite

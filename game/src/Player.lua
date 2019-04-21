@@ -90,6 +90,11 @@ function Player:resetDirection(direction, index)
     self:resetAnimations(self:currentSpriteNameTable(), index or 2)
 end
 
+-- スプライトバッチへ追加
+function Player:addCurrentSpriteToBatch(spriteBatch)
+    self:addSpriteToBatch(spriteBatch, self:getCurrentAnimation(), self.x, self.y)
+end
+
 -- 立つステート
 local Stand = Player:addState 'stand'
 
