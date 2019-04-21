@@ -4,8 +4,8 @@ local Rectangle = {}
 
 -- 初期化
 function Rectangle:initialize(x, y, w, h)
-    self.x = x or 0
-    self.y = y or 0
+    self.x = x or self.x or 0
+    self.y = y or self.y or 0
     self.w = w or 100
     self.h = h or 100
 end

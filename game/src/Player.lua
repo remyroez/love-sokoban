@@ -6,6 +6,7 @@ local stateful = require 'stateful'
 local Sprite = require 'Sprite'
 local Rectangle = require 'Rectangle'
 local Animation = require 'Animation'
+local Movement = require 'Movement'
 
 -- プレイヤークラス
 local Player = class 'Player'
@@ -13,6 +14,7 @@ Player:include(stateful)
 Player:include(Sprite)
 Player:include(Rectangle)
 Player:include(Animation)
+Player:include(Movement)
 
 -- 各方向のスプライト名
 local spriteNames = {
@@ -48,6 +50,7 @@ function Player:initialize(sprite, x, y, w, h)
     Sprite.initialize(self, sprite)
     Rectangle.initialize(self, x, y, w, h)
     Animation.initialize(self)
+    Movement.initialize(self)
 
     self:resetDirection()
     self:resetAnimationDuration(0.2)
@@ -85,7 +88,7 @@ end
 
 -- 方向を設定する
 function Player:resetDirection(direction, index)
-    self.direction = direction or 'down'
+    self.direction = direction or self.direction or 'down'
     self:resetAnimations(self:currentSpriteNameTable(), index or 2)
 end
 
@@ -100,7 +103,7 @@ end
 -- キー入力
 function Stand:keypressed(key, scancode, isrepeat)
     if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
-        self:gotoState('walk', key)
+        self:gotoState('walk', key, 100, 100, 1)
     end
 end
 
@@ -108,13 +111,19 @@ end
 local Walk = Player:addState 'walk'
 
 -- 歩く: ステート開始
-function Walk:enteredState(direction)
+function Walk:enteredState(direction, x, y, duration)
     self:resetDirection(direction)
+    self:startMovement(x, y, duration or 1)
 end
 
 -- 歩く: 更新
 function Walk:update(dt)
     self:updateAnimation(dt)
+    self:updateMovement(dt)
+
+    if not self:isMoving() then
+        self:gotoState 'stand'
+    end
 end
 
 return Player
