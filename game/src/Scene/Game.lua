@@ -4,6 +4,7 @@ local Scene = require(folderOfThisFile .. 'Scene')
 
 local Player = require 'Player'
 local Crate = require 'Crate'
+local Block = require 'Block'
 
 -- ゲーム
 local Game = Scene:addState('game', Scene)
@@ -15,6 +16,8 @@ function Game:load()
     
     self.crate = Crate(self.sprite, 100, 100, 128, 128)
     self.crate:gotoState('place')
+    
+    self.block = Block(self.sprite, 500, 200, 128, 128)
 end
 
 -- ゲーム: 更新
@@ -27,6 +30,7 @@ end
 function Game:draw()
     self.player:draw()
     self.crate:draw()
+    self.block:draw()
 end
 
 -- ゲーム: キー入力
