@@ -14,6 +14,7 @@ end
 
 -- ゲーム: 更新
 function Game:update(dt)
+    self.player:update(dt)
 end
 
 -- ゲーム: 描画
