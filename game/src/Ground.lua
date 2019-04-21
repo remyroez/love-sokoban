@@ -30,11 +30,16 @@ local spriteNames = {
 function Ground:initialize(sprite, x, y, w, h)
     -- モジュールの初期化
     Sprite.initialize(self, sprite)
-    Rectangle.initialize(self, x, y, w, h)
 
     -- タイプ
     self.type = 'stone'
     self.mark = 'wood'
+
+    -- 地面スプライトのサイズを取得
+    local sw, sh = self:getSpriteSize(self:getGroundSpriteName())
+
+    -- 矩形モジュールの初期化
+    Rectangle.initialize(self, x, y, w or sw, h or sh)
 end
 
 -- 更新

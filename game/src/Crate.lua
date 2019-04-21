@@ -42,11 +42,17 @@ local spriteNames = {
 function Crate:initialize(sprite, x, y, w, h)
     -- モジュールの初期化
     Sprite.initialize(self, sprite)
-    Rectangle.initialize(self, x, y, w, h)
-    Movement.initialize(self)
+    Movement.initialize(self, x, y)
 
+    -- 初期設定
     self.type = 'metal'
     self.fit = false
+
+    -- スプライトのサイズを取得
+    local sw, sh = self:getSpriteSize(self:getCurrentSpriteName())
+
+    -- 矩形モジュールの初期化
+    Rectangle.initialize(self, x, y, w or sw, h or sh)
 
     -- 初期座標
     self.begin_x = self.x

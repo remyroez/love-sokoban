@@ -13,10 +13,16 @@ function Sprite:getSprite(name)
     return self.spriteSheet.quad[name]
 end
 
--- スプライトの描画
-function Sprite:drawSprite(name, x, y)
+-- スプライトのサイズの取得
+function Sprite:getSpriteSize(name)
     local quad = self:getSprite(name)
     local _, __, w, h = quad:getViewport()
+    return w, h
+end
+
+-- スプライトの描画
+function Sprite:drawSprite(name, x, y)
+    local w, h = self:getSpriteSize(name)
     self.spriteSheet:draw(name, x - w / 2, y - h / 2)
 end
 

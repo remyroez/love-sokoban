@@ -12,14 +12,16 @@ local Game = Scene:addState('game', Scene)
 
 -- ゲーム: 読み込み
 function Game:load()
-    self.player = Player(self.sprite, 300, 300, 84, 100)
+    self.player = Player(self.sprite, 300, 300, 128, 128)
     self.player:gotoState('stand')
 
-    self.crate = Crate(self.sprite, 100, 100, 128, 128)
+    self.crate = Crate(self.sprite, 100, 100)
     self.crate:gotoState('place')
 
-    self.block = Block(self.sprite, 500, 200, 128, 128)
-    self.ground = Ground(self.sprite, 500, 400, 128, 128)
+    self.block = Block(self.sprite, 500, 200)
+    self.ground = Ground(self.sprite, 500, 400)
+
+    self.state.drawRectangle = false
 end
 
 -- ゲーム: 更新
@@ -34,6 +36,14 @@ function Game:draw()
     self.crate:draw()
     self.block:draw()
     self.ground:draw()
+
+    -- 矩形の描画
+    if self.state.drawRectangle then
+        self.player:drawRectangle()
+        self.crate:drawRectangle()
+        self.block:drawRectangle()
+        self.ground:drawRectangle()
+    end
 end
 
 -- ゲーム: キー入力

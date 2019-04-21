@@ -68,13 +68,11 @@ end
 
 -- 更新
 function Player:update(dt)
-    --self:updateAnimation(dt)
 end
 
 -- 描画
 function Player:draw()
     self:drawSprite(self:getCurrentAnimation(), self.x, self.y)
-    --self:drawRectangle()
 end
 
 -- キー入力
