@@ -9,11 +9,14 @@ local Scene = require 'Scene'
 -- シーン
 local scene
 
+-- ステートの描画フラグ
+local printStates = false
+
 -- 読み込み
 function love.load()
     -- シーンの作成とロード
     scene = Scene()
-    scene:load()
+    scene:gotoState 'boot'
 end
 
 -- 更新
@@ -29,6 +32,11 @@ function love.draw()
 
     -- シーンの描画
     scene:draw()
+
+    -- ステートの描画
+    if printStates then
+        scene:printStates()
+    end
 end
 
 -- キー入力
@@ -39,6 +47,9 @@ function love.keypressed(key, scancode, isrepeat)
     elseif key == 'f5' then
         -- リスタート
         love.event.quit('restart')
+    elseif key == 'f1' then
+        -- ステートの描画
+        printStates = not printStates
     else
         -- シーンに処理を渡す
         scene:keypressed(key, scancode, isrepeat)

@@ -2,12 +2,30 @@
 local class = require 'middleclass'
 local stateful = require 'stateful'
 
+-- 現在のステートを返す
+local function _getCurrentState(self)
+    return self.__stateStack[#self.__stateStack]
+end
+
+-- ステート名を返す
+local function _getStateName(self, target)
+    for name, state in pairs(self.class.static.states) do
+        if state == target then return name end
+    end
+end
+
+-- 現在のステート名を返す
+local function _getCurrentStateName(self)
+    return _getStateName(self, _getCurrentState(self))
+end
+
 -- シーン
 local Scene = class 'Scene'
 Scene:include(stateful)
 
 -- シーン: 初期化
 function Scene:initialize()
+    self.stateObjects = {}
 end
 
 -- シーン: 読み込み
@@ -20,6 +38,50 @@ end
 
 -- シーン: 描画
 function Scene:draw()
+end
+
+-- シーン: ステートの描画
+function Scene:printStates()
+    love.graphics.print('states: ' .. table.concat(self:getStateStackDebugInfo(), '/'))
+end
+
+-- シーン: ステート用テーブル
+function Scene:getState(name)
+    local name = name or _getCurrentStateName(self)
+
+    -- 現在のステート用テーブルが無ければ準備, load を呼ぶ
+    if self.stateObjects[name] == nil then
+        self.stateObjects[name] = {}
+        self:load()
+    end
+
+    return self.stateObjects[name]
+end
+
+-- シーン: ステート開始
+function Scene:enteredState(...)
+    -- 現在のステート用テーブルを準備
+    self.state = self:getState()
+end
+
+-- シーン: ステート終了
+function Scene:exitedState(...)
+end
+
+-- シーン: ステートプッシュ
+function Scene:pushedState(...)
+end
+
+-- シーン: ステートポップ
+function Scene:poppedState(...)
+end
+
+-- シーン: ステート停止
+function Scene:pausedState(...)
+end
+
+-- シーン: ステート再開
+function Scene:continuedState(...)
 end
 
 -- シーン: キー入力
