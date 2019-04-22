@@ -73,7 +73,7 @@ end
 -- キー入力
 function Level:keypressed(key, scancode, isrepeat)
     if self.player then
-        self.player:keypressed(key, scancode, isrepeat)
+        self.player:move(key)
     end
 end
 

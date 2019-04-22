@@ -53,7 +53,7 @@ function Player:initialize(sprite, x, y, w, h)
     Movement.initialize(self)
 
     self:resetDirection()
-    self:resetAnimationDuration(0.2)
+    self:resetAnimationDuration(0.25 / 4)
 
     -- 初期座標
     self.begin_x = self.x
@@ -75,8 +75,8 @@ function Player:draw()
     self:drawSprite(self:getCurrentAnimation(), self.x, self.y)
 end
 
--- キー入力
-function Player:keypressed(key, scancode, isrepeat)
+-- 移動
+function Player:move(direction)
 end
 
 -- 現在の方向のスプライト名テーブルを返す
@@ -104,11 +104,19 @@ function Stand:enteredState(direction)
     self.dirty = true
 end
 
--- 立つ: キー入力
-function Stand:keypressed(key, scancode, isrepeat)
-    if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
-        self:gotoState('walk', key, 100, 100, 1)
+-- 立つ: 移動
+function Stand:move(direction)
+    local x, y = 0, 0
+    if direction == 'up' then
+        y = -self.height
+    elseif direction == 'down' then
+        y = self.height
+    elseif direction == 'left' then
+        x = -self.width
+    elseif direction == 'right' then
+        x = self.width
     end
+    self:gotoState('walk', direction, x, y, 0.25)
 end
 
 -- 立つ: 更新
