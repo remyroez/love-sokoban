@@ -117,15 +117,38 @@ function Level:movePlayer(key)
         local fromX, fromY = self:toLevelPosition(self.player.x, self.player.y)
         local moveX, moveY = directionalOffset(key)
         local toX, toY = fromX + moveX, fromY + moveY
-        local ok = false
+        local ok = ok
         if self:getSquare(toX, toY, 'block') then
             -- ブロックには乗れない
             ok = false
-        elseif self:moveSquare(fromX, fromY, toX, toY, 'entity') then
-            -- 問題ない
-            ok = true
         else
-            ok = false
+            local entityOk = true
+            local entity = self:getSquare(toX, toY, 'entity')
+            if entity then
+                if not entity:movable() then
+                    -- エンティティは動かせない
+                    entityOk = false
+                elseif self:getSquare(toX + moveX, toY + moveY, 'block') then
+                    -- エンティティの移動先にブロック
+                    entityOk = false
+                elseif self:moveSquare(toX, toY, toX + moveX, toY + moveY, 'entity') then
+                    -- エンティティを移動できた
+                    entity:move(key, moveX * self.unitWidth, moveY * self.unitHeight)
+                else
+                    -- エンティティを移動できなかった
+                    entityOk = false
+                end
+            end
+            if not entityOk then
+                -- 移動先に問題があった
+                ok = false
+            elseif self:moveSquare(fromX, fromY, toX, toY, 'entity') then
+                -- 問題ない
+                ok = true
+            else
+                -- 移動できなかった
+                ok = false
+            end
         end
         -- 移動、または方向転換
         if ok then
@@ -246,7 +269,8 @@ function Level:loadLevel(data)
                     self:setSquare(j, i, 'block', Block(self.sprites, x, y))
                 elseif cell == '*' then
                     -- 箱
-                    self:setSquare(j, i, 'entity', Crate(self.sprites, x, y))
+                    local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y))
+                    crate:gotoState 'place'
                 elseif cell == '@' then
                     -- プレイヤー
                     player = self:setSquare(j, i, 'entity', Player(self.sprites, x, y, 128, 128))

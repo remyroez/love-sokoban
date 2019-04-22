@@ -125,7 +125,7 @@ function Stand:move(direction, mx, my, duration)
     self:gotoState('walk', direction, x, y, duration or 0.25)
 end
 
--- 移動できるかどうか返す
+-- 立つ: 移動できるかどうか返す
 function Stand:movable()
     return true
 end

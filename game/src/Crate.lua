@@ -73,6 +73,15 @@ function Crate:draw()
     self:drawSprite(self:getCurrentSpriteName(), self.x, self.y)
 end
 
+-- 移動
+function Crate:move()
+end
+
+-- 移動できるかどうか返す
+function Crate:movable()
+    return false
+end
+
 -- タイプの設定
 function Crate:setType(type, fit)
     self.type = type or 'wood'
@@ -108,9 +117,24 @@ function Place:update(dt)
     self.dirty = false
 end
 
--- 設置: キー入力
-function Place:move(direction)
-    self:pushState('move', direction, 100, 100, 1)
+-- 設置: 移動
+function Place:move(direction, mx, my, duration)
+    local x, y = mx, my
+    if direction == 'up' then
+        y = y or -self.height
+    elseif direction == 'down' then
+        y = y or self.height
+    elseif direction == 'left' then
+        x = x or -self.width
+    elseif direction == 'right' then
+        x = x or self.width
+    end
+    self:pushState('move', direction, x, y, duration or 0.25)
+end
+
+-- 設置: 移動できるかどうか返す
+function Place:movable()
+    return true
 end
 
 -- 移動ステート
@@ -127,7 +151,6 @@ function Move:update(dt)
     self.dirty = true
 
     if not self:isMoving() then
-        self.fit = true
         self:popState()
     end
 end
