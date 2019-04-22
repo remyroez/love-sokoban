@@ -79,6 +79,11 @@ end
 function Player:move(direction)
 end
 
+-- 移動できるかどうか返す
+function Player:movable()
+    return false
+end
+
 -- 現在の方向のスプライト名テーブルを返す
 function Player:currentSpriteNameTable()
     return spriteNames[self.direction]
@@ -88,6 +93,7 @@ end
 function Player:resetDirection(direction, index)
     self.direction = direction or self.direction or 'down'
     self:resetAnimations(self:currentSpriteNameTable(), index or 2)
+    self.dirty = true
 end
 
 -- スプライトバッチへ追加
@@ -105,18 +111,23 @@ function Stand:enteredState(direction)
 end
 
 -- 立つ: 移動
-function Stand:move(direction)
-    local x, y = 0, 0
+function Stand:move(direction, mx, my, duration)
+    local x, y = mx, my
     if direction == 'up' then
-        y = -self.height
+        y = y or -self.height
     elseif direction == 'down' then
-        y = self.height
+        y = y or self.height
     elseif direction == 'left' then
-        x = -self.width
+        x = x or -self.width
     elseif direction == 'right' then
-        x = self.width
+        x = x or self.width
     end
-    self:gotoState('walk', direction, x, y, 0.25)
+    self:gotoState('walk', direction, x, y, duration or 0.25)
+end
+
+-- 移動できるかどうか返す
+function Stand:movable()
+    return true
 end
 
 -- 立つ: 更新

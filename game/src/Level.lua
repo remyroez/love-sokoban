@@ -25,6 +25,21 @@ local layerNames = {
     --'entity'
 }
 
+-- 方向に応じたオフセット値を返す
+local function directionalOffset(direction, x, y)
+    x = x or 1
+    y = y or 1
+    if direction == 'up' then
+        return 0, -y
+    elseif direction == 'down' then
+        return 0, y
+    elseif direction == 'left' then
+        return -x, 0
+    elseif direction == 'right' then
+        return x, 0
+    end
+end
+
 -- 初期化
 function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVertical)
     -- デフォルト値
@@ -72,13 +87,36 @@ end
 
 -- キー入力
 function Level:keypressed(key, scancode, isrepeat)
-    if self.player then
-        self.player:move(key)
-    end
+    self:movePlayer(key)
 end
 
 -- マウス入力
 function Level:mousepressed(x, y, button, istouch, presses)
+end
+
+-- マウス入力
+function Level:movePlayer(key)
+    if self.player and self.player:movable() and (key == 'up' or key == 'down' or key == 'left' or key == 'right') then
+        local fromX, fromY = self:toLevelPosition(self.player.x, self.player.y)
+        local moveX, moveY = directionalOffset(key)
+        local toX, toY = fromX + moveX, fromY + moveY
+        local ok = false
+        if self:getSquare(toX, toY, 'block') then
+            -- ブロックには乗れない
+            ok = false
+        elseif self:moveSquare(fromX, fromY, toX, toY, 'entity') then
+            -- 問題ない
+            ok = true
+        else
+            ok = false
+        end
+        -- 移動、または方向転換
+        if ok then
+            self.player:move(key, moveX * self.unitWidth, moveY * self.unitHeight)
+        else
+            self.player:resetDirection(key)
+        end
+    end
 end
 
 -- レイヤーを返す
@@ -128,6 +166,11 @@ end
 -- マスを設定
 function Level:setSquare(x, y, z, it)
     return self:getLayer(z):setSquare(x, y, it)
+end
+
+-- マスを移動
+function Level:moveSquare(fromX, fromY, toX, toY, z)
+    return self:getLayer(z):moveSquare(fromX, fromY, toX, toY)
 end
 
 -- スプライトバッチのビルド

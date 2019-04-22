@@ -83,7 +83,7 @@ end
 
 -- レベル座標に変換する
 function Layer:toLevelPosition(x, y)
-    return math.floor(x / self.unitWidth) + 1, math.floor(y / self.unitHeight) + 1
+    return math.ceil(x / self.unitWidth) + 1, math.ceil(y / self.unitHeight) + 1
 end
 
 -- ピクセル幅
@@ -122,6 +122,20 @@ function Layer:setSquare(x, y, it)
     self.squares[y][x] = it
     self.dirty = true
     return self.squares[y][x]
+end
+
+-- マスを移動
+function Layer:moveSquare(fromX, fromY, toX, toY)
+    if fromX < 1 or fromY < 1 or toX < 1 or toY < 1 then
+        -- 1 未満の座標にはいけない
+    elseif fromX > self.numHorizontal or fromY > self.numVertical or toX > self.numHorizontal or toY > self.numVertical then
+        -- 幅と高さより外の座標にはいけない
+    elseif self:getSquare(toX, toY) == nil then
+        local square = self:getSquare(fromX, fromY)
+        self:setSquare(fromX, fromY, nil)
+        return self:setSquare(toX, toY, square)
+    end
+    return nil
 end
 
 -- スプライトバッチのビルド
