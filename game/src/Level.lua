@@ -13,6 +13,7 @@ local Rectangle = require 'Rectangle'
 
 -- エイリアス
 local lg = love.graphics
+local lk = love.keyboard
 
 -- レベルクラス
 local Level = class 'Level'
@@ -23,6 +24,14 @@ local layerNames = {
     'ground',
     'block',
     --'entity'
+}
+
+-- 方向
+local directions = {
+    'up',
+    'down',
+    'left',
+    'right'
 }
 
 -- 方向に応じたオフセット値を返す
@@ -63,6 +72,15 @@ end
 
 -- 更新
 function Level:update(dt)
+    -- プレイヤーの移動
+    if self.player and self.player:movable() then
+        for _, direction in ipairs(directions) do
+            if lk.isDown(direction) then
+                self:movePlayer(direction)
+            end
+        end
+    end
+
     for name, layer in pairs(self.layers) do
         layer:update(dt)
     end
@@ -87,7 +105,6 @@ end
 
 -- キー入力
 function Level:keypressed(key, scancode, isrepeat)
-    self:movePlayer(key)
 end
 
 -- マウス入力
