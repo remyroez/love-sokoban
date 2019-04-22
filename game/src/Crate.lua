@@ -45,8 +45,7 @@ function Crate:initialize(sprite, x, y, w, h)
     Movement.initialize(self, x, y)
 
     -- 初期設定
-    self.type = 'metal'
-    self.fit = false
+    self:setType()
 
     -- スプライトのサイズを取得
     local sw, sh = self:getSpriteSize(self:getCurrentSpriteName())
@@ -74,6 +73,18 @@ function Crate:draw()
     self:drawSprite(self:getCurrentSpriteName(), self.x, self.y)
 end
 
+-- タイプの設定
+function Crate:setType(type, fit)
+    self.type = type or 'wood'
+    return self:setFit(fit)
+end
+
+-- 合致の設定
+function Crate:setFit(fit)
+    self.fit = fit or false
+    return self
+end
+
 -- 現在のスプライト名を返す
 function Crate:getCurrentSpriteName()
     return spriteNames[self.type][self.fit and 'fit' or 'default']
@@ -89,6 +100,12 @@ local Place = Crate:addState 'place'
 
 -- 設置: ステート開始
 function Place:enteredState()
+    self.dirty = true
+end
+
+-- 設置: 更新
+function Place:update(dt)
+    self.dirty = false
 end
 
 -- 設置: キー入力
@@ -107,6 +124,7 @@ end
 -- 移動: 更新
 function Move:update(dt)
     self:updateMovement(dt)
+    self.dirty = true
 
     if not self:isMoving() then
         self.fit = true

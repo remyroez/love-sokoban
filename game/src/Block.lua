@@ -24,7 +24,7 @@ function Block:initialize(sprite, x, y, w, h)
     Sprite.initialize(self, sprite)
 
     -- タイプ
-    self.type = 'brick'
+    self:setType()
 
     -- スプライトのサイズを取得
     local sw, sh = self:getSpriteSize(self:getCurrentSpriteName())
@@ -40,6 +40,12 @@ end
 -- 描画
 function Block:draw()
     self:drawSprite(self:getCurrentSpriteName(), self.x, self.y)
+end
+
+-- タイプの設定
+function Block:setType(type)
+    self.type = type or 'brick'
+    return self
 end
 
 -- 現在のスプライト名を返す

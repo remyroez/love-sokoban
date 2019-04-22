@@ -60,6 +60,7 @@ end
 function Ground:setType(type, mark)
     self.type = type or 'stone'
     self.mark = mark
+    return self
 end
 
 -- 地面のスプライト名を返す
@@ -76,7 +77,7 @@ end
 function Ground:addCurrentSpriteToBatch(spriteBatch)
     -- 地面の描画
     self:addSpriteToBatch(spriteBatch, self:getGroundSpriteName(), self.x, self.y)
-    
+
     -- マークの描画
     if self.mark then
         self:addSpriteToBatch(spriteBatch, self:getMarkSpriteName(), self.x, self.y)

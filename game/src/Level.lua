@@ -6,6 +6,7 @@ local Layer = require 'Layer'
 local Ground = require 'Ground'
 local Block = require 'Block'
 local Crate = require 'Crate'
+local Player = require 'Player'
 
 -- モジュール
 local Rectangle = require 'Rectangle'
@@ -31,6 +32,7 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
     self.unitHeight = unitHeight or 128
     self.numHorizontal = numHorizontal or 10
     self.numVertical = numVertical or 10
+    self.player = nil
 
     -- 変数
     self.sprites = sprites
@@ -41,7 +43,7 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
     }
 
     -- モジュールの初期化
-    Rectangle.initialize(self, 0, 0, self:pixelWidth(), self:pixelHeight())
+    Rectangle.initialize(self, math.ceil(self.unitWidth / 2), math.ceil(self.unitHeight / 2), self:pixelWidth(), self:pixelHeight())
 end
 
 -- 更新
@@ -53,6 +55,10 @@ end
 
 -- 描画
 function Level:draw()
+    lg.push()
+    lg.scale(0.25, 0.25)
+    lg.translate(self.x, self.y)
+
     -- 静的なレイヤーを描画
     for i, name in ipairs(layerNames) do
         self.layers[name]:draw()
@@ -60,11 +66,31 @@ function Level:draw()
 
     -- エンティティレイヤーを描画
     self:getLayer('entity'):draw()
+
+    lg.pop()
+end
+
+-- キー入力
+function Level:keypressed(key, scancode, isrepeat)
+    if self.player then
+        self.player:keypressed(key, scancode, isrepeat)
+    end
+end
+
+-- マウス入力
+function Level:mousepressed(x, y, button, istouch, presses)
 end
 
 -- レイヤーを返す
 function Level:getLayer(z)
     return self.layers[z or 'ground']
+end
+
+-- サイズの変更
+function Level:resize(numHorizontal, numVertical)
+    for name, layer in pairs(self.layers) do
+        layer:resize(numHorizontal, numVertical)
+    end
 end
 
 -- ピクセル座標に変換する
@@ -114,47 +140,68 @@ end
 
 -- レベルのロード
 function Level:loadLevel(data)
+    -- マスのクリア
     self:clearSquares()
 
+    -- ダミーデータ
     data = data or {
-        width = 8,
-        height = 8,
-        groundFill = {
-            type = 'stone'
-        },
-        ground = {
-        },
-        block = {
-            {
-                x = 0,
-                y = 2,
-                type = 'brick',
-            },
-            {
-                x = 0,
-                y = 3,
-                type = 'brick',
-            },
-            {
-                x = 0,
-                y = 4,
-                type = 'brick',
-            },
-        },
-        entity = {
-
-        }
+        '    XXXXX             ',
+        '    X   X             ',
+        '    X*  X             ',
+        '  XXX  *XXX           ',
+        '  X  *  * X           ',
+        'XXX X XXX X     XXXXXX',
+        'X   X XXX XXXXXXX  ..X',
+        'X *  *             ..X',
+        'XXXXX XXXX X@XXXX  ..X',
+        '    X      XXX  XXXXXX',
+        '    XXXXXXXX          ',
     }
-    
-    for y = 1, self.numVertical do
-        for x = 1, self.numHorizontal do
-            self:setSquare(x, y, 'ground', Ground(self.sprites, self:toPixelPosition(x - 1, y - 1)))
+
+    -- ステージのマス目
+    local numHorizontal = 0
+    local numVertical = 0
+    local player
+
+    for i, line in ipairs(data) do
+        numVertical = i
+        local length = string.len(line)
+        if numHorizontal < length then
+            numHorizontal = length
+        end
+        for j = 1, length do
+            local x, y = self:toPixelPosition(j - 1, i - 1)
+            local cell = string.sub(line, j, j)
+            if cell == ' ' then
+                -- 地面
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y))
+            elseif cell == '.' then
+                -- マーク付き地面
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType('stone', 'wood')
+            else
+                -- 地面
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y))
+                if cell == 'X' then
+                    -- ブロック
+                    self:setSquare(j, i, 'block', Block(self.sprites, x, y))
+                elseif cell == '*' then
+                    -- 箱
+                    self:setSquare(j, i, 'entity', Crate(self.sprites, x, y))
+                elseif cell == '@' then
+                    -- プレイヤー
+                    player = self:setSquare(j, i, 'entity', Player(self.sprites, x, y, 128, 128))
+                end
+            end
         end
     end
 
-    -- テスト配置
-    self:setSquare(2, 2, 'block', Block(self.sprites, self:toPixelPosition(1, 1)))
-    self:setSquare(4, 5, 'entity', Crate(self.sprites, self:toPixelPosition(3, 4)))
+    -- プレイヤーを保持
+    self.player = player
+    self.player:gotoState('stand', 'down')
+    print(self.player.x, self.player.y)
+
+    -- リサイズ
+    self:resize(numHorizontal, numVertical)
 
     -- スプライトバッチのビルド
     self:buildSpriteBatch()

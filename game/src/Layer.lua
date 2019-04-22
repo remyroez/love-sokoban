@@ -68,6 +68,14 @@ function Layer:draw()
     end
 end
 
+-- サイズの変更
+function Layer:resize(numHorizontal, numVertical)
+    self.numHorizontal = numHorizontal or 10
+    self.numVertical = numVertical or 10
+    self.dirty = true
+    return self
+end
+
 -- ピクセル座標に変換する
 function Layer:toPixelPosition(x, y)
     return x * self.unitWidth, y * self.unitHeight

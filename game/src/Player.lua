@@ -101,6 +101,7 @@ local Stand = Player:addState 'stand'
 -- 立つ: ステート開始
 function Stand:enteredState(direction)
     self:resetDirection(direction)
+    self.dirty = true
 end
 
 -- 立つ: キー入力
@@ -110,6 +111,11 @@ function Stand:keypressed(key, scancode, isrepeat)
     end
 end
 
+-- 立つ: 更新
+function Stand:update(dt)
+    self.dirty = false
+end
+
 -- 歩くステート
 local Walk = Player:addState 'walk'
 
@@ -117,12 +123,14 @@ local Walk = Player:addState 'walk'
 function Walk:enteredState(direction, x, y, duration)
     self:resetDirection(direction)
     self:startMovement(x, y, duration or 1)
+    self.dirty = true
 end
 
 -- 歩く: 更新
 function Walk:update(dt)
     self:updateAnimation(dt)
     self:updateMovement(dt)
+    self.dirty = true
 
     if not self:isMoving() then
         self:gotoState 'stand'
