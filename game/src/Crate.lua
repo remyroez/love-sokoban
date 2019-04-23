@@ -42,11 +42,16 @@ local spriteNames = {
 function Crate:initialize(sprite, x, y, w, h)
     -- モジュールの初期化
     Sprite.initialize(self, sprite)
-    Rectangle.initialize(self, x, y, w, h)
-    Movement.initialize(self)
+    Movement.initialize(self, x, y)
 
-    self.type = 'metal'
-    self.fit = false
+    -- 初期設定
+    self:setType()
+
+    -- スプライトのサイズを取得
+    local sw, sh = self:getSpriteSize(self:getCurrentSpriteName())
+
+    -- 矩形モジュールの初期化
+    Rectangle.initialize(self, x, y, w or sw, h or sh)
 
     -- 初期座標
     self.begin_x = self.x
@@ -68,9 +73,35 @@ function Crate:draw()
     self:drawSprite(self:getCurrentSpriteName(), self.x, self.y)
 end
 
+-- 移動
+function Crate:move()
+end
+
+-- 移動できるかどうか返す
+function Crate:movable()
+    return false
+end
+
+-- タイプの設定
+function Crate:setType(type, fit)
+    self.type = type or 'wood'
+    return self:setFit(fit)
+end
+
+-- 合致の設定
+function Crate:setFit(fit)
+    self.fit = fit or false
+    return self
+end
+
 -- 現在のスプライト名を返す
 function Crate:getCurrentSpriteName()
     return spriteNames[self.type][self.fit and 'fit' or 'default']
+end
+
+-- スプライトバッチへ追加
+function Crate:addCurrentSpriteToBatch(spriteBatch)
+    self:addSpriteToBatch(spriteBatch, self:getCurrentSpriteName(), self.x, self.y)
 end
 
 -- 設置ステート
@@ -78,11 +109,32 @@ local Place = Crate:addState 'place'
 
 -- 設置: ステート開始
 function Place:enteredState()
+    self.dirty = true
 end
 
--- 設置: キー入力
-function Place:move(direction)
-    self:pushState('move', direction, 100, 100, 1)
+-- 設置: 更新
+function Place:update(dt)
+    self.dirty = false
+end
+
+-- 設置: 移動
+function Place:move(direction, mx, my, duration)
+    local x, y = mx, my
+    if direction == 'up' then
+        y = y or -self.height
+    elseif direction == 'down' then
+        y = y or self.height
+    elseif direction == 'left' then
+        x = x or -self.width
+    elseif direction == 'right' then
+        x = x or self.width
+    end
+    self:pushState('move', direction, x, y, duration or 0.25)
+end
+
+-- 設置: 移動できるかどうか返す
+function Place:movable()
+    return true
 end
 
 -- 移動ステート
@@ -96,11 +148,16 @@ end
 -- 移動: 更新
 function Move:update(dt)
     self:updateMovement(dt)
+    self.dirty = true
 
     if not self:isMoving() then
-        self.fit = true
         self:popState()
     end
+end
+
+-- 移動: 移動できるかどうか返す
+function Move:movable()
+    return false
 end
 
 return Crate

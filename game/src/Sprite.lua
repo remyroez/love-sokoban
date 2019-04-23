@@ -13,11 +13,23 @@ function Sprite:getSprite(name)
     return self.spriteSheet.quad[name]
 end
 
--- スプライトの描画
-function Sprite:drawSprite(name, x, y)
+-- スプライトのサイズの取得
+function Sprite:getSpriteSize(name)
     local quad = self:getSprite(name)
     local _, __, w, h = quad:getViewport()
-    self.spriteSheet:draw(name, x - w / 2, y - h / 2)
+    return w, h
+end
+
+-- スプライトの描画
+function Sprite:drawSprite(name, x, y)
+    local w, h = self:getSpriteSize(name)
+    self.spriteSheet:draw(name, math.ceil(x - w / 2), math.ceil(y - h / 2))
+end
+
+-- スプライトバッチへ追加
+function Sprite:addSpriteToBatch(spriteBatch, name, x, y)
+    local w, h = self:getSpriteSize(name)
+    spriteBatch:add(self:getSprite(name), math.ceil(x - w / 2), math.ceil(y - h / 2))
 end
 
 return Sprite

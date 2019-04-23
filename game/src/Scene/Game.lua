@@ -2,43 +2,89 @@
 local folderOfThisFile = (...):match("(.-)[^%/%.]+$")
 local Scene = require(folderOfThisFile .. 'Scene')
 
+-- クラス
 local Player = require 'Player'
 local Crate = require 'Crate'
 local Block = require 'Block'
+local Ground = require 'Ground'
+local Level = require 'Level'
+
+-- エイリアス
+local lg = love.graphics
 
 -- ゲーム
 local Game = Scene:addState('game', Scene)
 
--- ゲーム: 読み込み
+-- 読み込み
 function Game:load()
-    self.player = Player(self.sprite, 300, 300, 84, 100)
-    self.player:gotoState('stand')
-    
-    self.crate = Crate(self.sprite, 100, 100, 128, 128)
-    self.crate:gotoState('place')
-    
-    self.block = Block(self.sprite, 500, 200, 128, 128)
+    self.level = Level(self.sprite)
+    self.level:loadLevel {
+        '  XXX   ',
+        '  X.X   ',
+        '  X XXXX',
+        'XXX* *.X',
+        'X. *@XXX',
+        'XXXX*X  ',
+        '   X.X  ',
+        '   XXX  ',
+    }
+    --[[
+    {
+        '    XXXXX             ',
+        '    X   X             ',
+        '    X*  X             ',
+        '  XXX  *XXX           ',
+        '  X  *  * X           ',
+        'XXX X XXX X     XXXXXX',
+        'X   X XXX XXXXXXX  ..X',
+        'X *  *             ..X',
+        'XXXXX XXXX X@XXXX  ..X',
+        '    X      XXX  XXXXXX',
+        '    XXXXXXXX          ',
+    }
+    ]]
+
+    self.level:gotoState 'play'
+
+    self.state.drawRectangle = false
 end
 
--- ゲーム: 更新
+-- 更新
 function Game:update(dt)
-    self.player:update(dt)
-    self.crate:update(dt)
+    self.level:update(dt)
+    --self.player:update(dt)
 end
 
--- ゲーム: 描画
+-- 描画
 function Game:draw()
-    self.player:draw()
-    self.crate:draw()
-    self.block:draw()
+    -- レベル描画
+    self.level:draw()
+
+    -- 矩形の描画
+    if self.state.drawRectangle then
+        self.level:drawRectangle()
+    end
+
+    -- トップバー
+    lg.setColor(0, 0, 0, 0.75)
+    lg.rectangle("fill", 0, 0, self.width, self.height * 0.1)
+
+    -- ステップ数
+    lg.setColor(1, 1, 1)
+    lg.printf("STEP: " .. self.level.step, self.width * 0.01, self.height * 0.025, self.width, 'left')
 end
 
--- ゲーム: キー入力
+-- キー入力
 function Game:keypressed(key, scancode, isrepeat)
-    --self.player:keypressed(key, scancode, isrepeat)
-    self.crate:move(key)
+    if self.level:cleared() then
+        if key == 'enter' then
+        end
+    else
+        self.level:keypressed(key, scancode, isrepeat)
+    end
 end
 
--- ゲーム: マウス入力
+-- マウス入力
 function Game:mousepressed(x, y, button, istouch, presses)
+    self.level:mousepressed(key, scancode, isrepeat)
 end
