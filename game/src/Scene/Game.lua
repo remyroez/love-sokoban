@@ -19,17 +19,24 @@ local Game = Scene:addState('game', Scene)
 function Game:load()
     -- レベル作成
     self.level = Level(self.sprite)
-    self.level:loadLevel(self.levels[1])
-    self.level:gotoState 'play'
 
     -- 矩形
     self.state.drawRectangle = false
 end
 
+-- ステート開始
+function Game:enteredState(...)
+    -- 親
+    Scene.enteredState(self, ...)
+
+    -- レベル読み込み
+    self.level:loadLevel(self.levels[self.selectedLevel])
+    self.level:gotoState 'play'
+end
+
 -- 更新
 function Game:update(dt)
     self.level:update(dt)
-    --self.player:update(dt)
 end
 
 -- 描画
@@ -54,9 +61,26 @@ end
 -- キー入力
 function Game:keypressed(key, scancode, isrepeat)
     if self.level:cleared() then
-        if key == 'enter' then
+        -- レベルクリア
+        if key == 'return' then
+            -- 次のレベル
+            self.selectedLevel = self.selectedLevel + 1
+            if self.selectedLevel > #self.levels then
+                self.selectedLevel = 1
+            end
+            self:gotoState 'select'
         end
+
+    elseif key == 'home' then
+        -- やりなおし
+        self:gotoState 'game'
+
+    elseif key == 'end' then
+        -- レベル選択に戻る
+        self:gotoState 'select'
+
     else
+        -- レベル入力
         self.level:keypressed(key, scancode, isrepeat)
     end
 end

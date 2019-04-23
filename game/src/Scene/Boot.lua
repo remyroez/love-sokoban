@@ -17,10 +17,11 @@ function Boot:load()
 
     -- レベルデータ
     self.levels = love.filesystem.load('assets/levels.lua')()
+    self.selectedLevel = 1
 end
 
 -- 更新
 function Boot:update()
-    -- ゲームへ
-    self:gotoState 'game'
+    -- レベル選択へ
+    self:gotoState 'select'
 end
