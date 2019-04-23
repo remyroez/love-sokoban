@@ -34,6 +34,14 @@ local directions = {
     'right'
 }
 
+-- 方向チェック用
+local directionChecks = {
+    up = 1,
+    down = 1,
+    left = 1,
+    right = 1
+}
+
 -- 方向に応じたオフセット値を返す
 local function directionalOffset(direction, x, y)
     x = x or 1
@@ -56,7 +64,10 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
     self.unitHeight = unitHeight or 128
     self.numHorizontal = numHorizontal or 10
     self.numVertical = numVertical or 10
+
     self.player = nil
+    self.players = {}
+    self.crates = {}
 
     -- 変数
     self.sprites = sprites
@@ -72,15 +83,10 @@ end
 
 -- 更新
 function Level:update(dt)
-    -- プレイヤーの移動
-    if self.player and self.player:movable() then
-        for _, direction in ipairs(directions) do
-            if lk.isDown(direction) then
-                self:movePlayer(direction)
-            end
-        end
-    end
+    -- プレイヤー操作
+    self:controlPlayers()
 
+    -- 各レイヤー更新
     for name, layer in pairs(self.layers) do
         layer:update(dt)
     end
@@ -111,17 +117,66 @@ end
 function Level:mousepressed(x, y, button, istouch, presses)
 end
 
--- マウス入力
-function Level:movePlayer(key)
-    if self.player and self.player:movable() and (key == 'up' or key == 'down' or key == 'left' or key == 'right') then
-        local fromX, fromY = self:toLevelPosition(self.player.x, self.player.y)
-        local moveX, moveY = directionalOffset(key)
+-- クリア判定
+function Level:checkClear()
+    local clear = true
+    for _, crate in ipairs(self.crates) do
+        if not crate:movable() then
+            -- 移動中ならしてない
+            clear = false
+            break
+        elseif not crate.fit then
+            -- 一致してないならしてない
+            clear = false
+            break
+        else
+            -- 一致した
+        end
+    end
+    return clear
+end
+
+-- プレイヤー操作
+function Level:controlPlayers()
+    -- 各方向
+    for _, direction in ipairs(directions) do
+        -- キー入力
+        if lk.isDown(direction) then
+            -- 各プレイヤー
+            for _, player in ipairs(self.players) do
+                if player:movable() then
+                    self:movePlayer(player, direction)
+                end
+            end
+        end
+    end
+end
+
+-- プレイヤー移動処理
+function Level:movePlayer(player, direction)
+    if not player then
+        -- プレイヤーが無効
+
+    elseif not directionChecks[direction] then
+        -- 方向が無効
+
+    else
+        -- 移動元座標の取得
+        local fromX, fromY = self:toLevelPosition(player.x, player.y)
+
+        -- 移動量の取得
+        local moveX, moveY = directionalOffset(direction)
+
+        -- 移動先座標の計算
         local toX, toY = fromX + moveX, fromY + moveY
-        local ok = ok
+
+        local ok = false
+        
         if self:getSquare(toX, toY, 'block') then
             -- ブロックには乗れない
             ok = false
         else
+            -- 移動先のエンティティを押し出す
             local entityOk = true
             local entity = self:getSquare(toX, toY, 'entity')
             if entity then
@@ -133,28 +188,37 @@ function Level:movePlayer(key)
                     entityOk = false
                 elseif self:moveSquare(toX, toY, toX + moveX, toY + moveY, 'entity') then
                     -- エンティティを移動できた
-                    entity:move(key, moveX * self.unitWidth, moveY * self.unitHeight)
+                    entity:move(direction, moveX * self.unitWidth, moveY * self.unitHeight)
+
+                    -- 移動先のマークが一致した
+                    local ground = self:getSquare(toX + moveX, toY + moveY, 'ground')
+                    if ground then
+                        entity:setFit(ground.mark ~= nil and ground.mark == entity.type)
+                    end
                 else
                     -- エンティティを移動できなかった
                     entityOk = false
                 end
             end
+            -- エンティティの移動
             if not entityOk then
                 -- 移動先に問題があった
                 ok = false
             elseif self:moveSquare(fromX, fromY, toX, toY, 'entity') then
-                -- 問題ない
+                -- エンティティを移動させた
                 ok = true
             else
                 -- 移動できなかった
                 ok = false
             end
         end
-        -- 移動、または方向転換
+        -- プレイヤーの移動
         if ok then
-            self.player:move(key, moveX * self.unitWidth, moveY * self.unitHeight)
+            -- 移動
+            player:move(direction, moveX * self.unitWidth, moveY * self.unitHeight)
         else
-            self.player:resetDirection(key)
+            -- 方向転換のみ
+            player:resetDirection(direction)
         end
     end
 end
@@ -227,24 +291,14 @@ function Level:loadLevel(data)
     self:clearSquares()
 
     -- ダミーデータ
-    data = data or {
-        '    XXXXX             ',
-        '    X   X             ',
-        '    X*  X             ',
-        '  XXX  *XXX           ',
-        '  X  *  * X           ',
-        'XXX X XXX X     XXXXXX',
-        'X   X XXX XXXXXXX  ..X',
-        'X *  *             ..X',
-        'XXXXX XXXX X@XXXX  ..X',
-        '    X      XXX  XXXXXX',
-        '    XXXXXXXX          ',
-    }
+    data = data or {}
 
     -- ステージのマス目
     local numHorizontal = 0
     local numVertical = 0
-    local player
+    
+    self.players = {}
+    self.crates = {}
 
     for i, line in ipairs(data) do
         numVertical = i
@@ -271,18 +325,16 @@ function Level:loadLevel(data)
                     -- 箱
                     local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y))
                     crate:gotoState 'place'
+                    table.insert(self.crates, crate)
                 elseif cell == '@' then
                     -- プレイヤー
-                    player = self:setSquare(j, i, 'entity', Player(self.sprites, x, y, 128, 128))
+                    local player = self:setSquare(j, i, 'entity', Player(self.sprites, x, y, 128, 128))
+                    player:gotoState('stand', 'down')
+                    table.insert(self.players, player)
                 end
             end
         end
     end
-
-    -- プレイヤーを保持
-    self.player = player
-    self.player:gotoState('stand', 'down')
-    print(self.player.x, self.player.y)
 
     -- リサイズ
     self:resize(numHorizontal, numVertical)

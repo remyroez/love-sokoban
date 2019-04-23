@@ -14,7 +14,19 @@ local Game = Scene:addState('game', Scene)
 -- ゲーム: 読み込み
 function Game:load()
     self.level = Level(self.sprite)
-    self.level:loadLevel()
+    self.level:loadLevel {
+        '    XXXXX             ',
+        '    X   X             ',
+        '    X*  X             ',
+        '  XXX  *XXX           ',
+        '  X  *  * X           ',
+        'XXX X XXX X     XXXXXX',
+        'X   X XXX XXXXXXX  ..X',
+        'X *  *             ..X',
+        'XXXXX XXXX X@XXXX  ..X',
+        '    X      XXX  XXXXXX',
+        '    XXXXXXXX          ',
+    }
 
     self.state.drawRectangle = false
 end
