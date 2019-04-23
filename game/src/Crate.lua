@@ -155,4 +155,9 @@ function Move:update(dt)
     end
 end
 
+-- 移動: 移動できるかどうか返す
+function Move:movable()
+    return false
+end
+
 return Crate

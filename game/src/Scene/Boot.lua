@@ -7,6 +7,10 @@ local Boot = Scene:addState('boot', Scene)
 
 -- 読み込み
 function Boot:load()
+    local width, height = love.graphics.getDimensions()
+    self.width = width
+    self.height = height
+
     -- スプライトシートの読み込み
     self.sprite = sbss:new('assets/spritesheet.xml')
 end

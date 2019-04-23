@@ -67,10 +67,10 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
     self.numHorizontal = numHorizontal or 10
     self.numVertical = numVertical or 10
 
-    self.player = nil
     self.players = {}
     self.crates = {}
     self.speed = 0.1
+    self.step = 0
 
     -- 変数
     self.sprites = sprites
@@ -107,6 +107,11 @@ end
 function Level:mousepressed(x, y, button, istouch, presses)
 end
 
+-- クリア済みかどうか
+function Level:cleared()
+    return false
+end
+
 -- クリア判定
 function Level:checkClear()
     local clear = true
@@ -128,6 +133,9 @@ end
 
 -- プレイヤー操作
 function Level:controlPlayers()
+    -- 移動したかどうか
+    local moved = false
+
     -- 各方向
     for _, direction in ipairs(directions) do
         -- キー入力
@@ -135,16 +143,24 @@ function Level:controlPlayers()
             -- 各プレイヤー
             for _, player in ipairs(self.players) do
                 if player:movable() then
-                    self:movePlayer(player, direction, self.speed)
+                    moved = self:movePlayer(player, direction, self.speed) or moved
                 end
             end
         end
+    end
+
+    -- 移動したらステップをカウントアップ
+    if moved then
+        self.step = self.step + 1
     end
 end
 
 -- プレイヤー移動処理
 function Level:movePlayer(player, direction, duration)
     duration = duration or 0.25
+
+    -- 移動したかどうか
+    local moved = false
 
     if not player then
         -- プレイヤーが無効
@@ -163,7 +179,7 @@ function Level:movePlayer(player, direction, duration)
         local toX, toY = fromX + moveX, fromY + moveY
 
         local ok = false
-        
+
         if self:getSquare(toX, toY, 'block') then
             -- ブロックには乗れない
             ok = false
@@ -208,11 +224,14 @@ function Level:movePlayer(player, direction, duration)
         if ok then
             -- 移動
             player:move(direction, moveX * self.unitWidth, moveY * self.unitHeight, duration)
+            moved = true
         else
             -- 方向転換のみ
             player:resetDirection(direction)
         end
     end
+
+    return moved
 end
 
 -- 各レイヤー更新
@@ -306,7 +325,7 @@ function Level:loadLevel(data)
     -- ステージのマス目
     local numHorizontal = 0
     local numVertical = 0
-    
+
     self.players = {}
     self.crates = {}
 
@@ -373,9 +392,26 @@ end
 -- クリアステート
 local Clear = Level:addState 'clear'
 
--- プレイ: 更新
+-- クリア: 更新
+function Clear:update(dt)
+    -- 各レイヤー更新
+    self:updateLayers(dt)
+end
+
+-- クリア: 更新
 function Clear:draw()
-    lg.printf('LEVEL CLEAR', 0, 0, 800, 'center')
+    Level.draw(self)
+
+    local width, height = lg.getDimensions()
+
+    -- クリア表示
+    lg.setColor(1.0, 0, 0)
+    lg.printf('LEVEL CLEAR', 0, height * 0.25, 800, 'center')
+end
+
+-- クリア: クリア済みかどうか
+function Clear:cleared()
+    return true
 end
 
 return Level
