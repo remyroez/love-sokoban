@@ -15,6 +15,17 @@ local Game = Scene:addState('game', Scene)
 function Game:load()
     self.level = Level(self.sprite)
     self.level:loadLevel {
+        '  XXX   ',
+        '  X.X   ',
+        '  X XXXX',
+        'XXX* *.X',
+        'X. *@XXX',
+        'XXXX*X  ',
+        '   X.X  ',
+        '   XXX  ',
+    }
+    --[[
+    {
         '    XXXXX             ',
         '    X   X             ',
         '    X*  X             ',
@@ -27,6 +38,9 @@ function Game:load()
         '    X      XXX  XXXXXX',
         '    XXXXXXXX          ',
     }
+    ]]
+
+    self.level:gotoState 'play'
 
     self.state.drawRectangle = false
 end

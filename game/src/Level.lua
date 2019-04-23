@@ -1,5 +1,6 @@
 
 local class = require 'middleclass'
+local stateful = require 'stateful'
 
 -- クラス
 local Layer = require 'Layer'
@@ -17,6 +18,7 @@ local lk = love.keyboard
 
 -- レベルクラス
 local Level = class 'Level'
+Level:include(stateful)
 Level:include(Rectangle)
 
 -- レイヤー名
@@ -68,6 +70,7 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
     self.player = nil
     self.players = {}
     self.crates = {}
+    self.speed = 0.1
 
     -- 変数
     self.sprites = sprites
@@ -83,13 +86,6 @@ end
 
 -- 更新
 function Level:update(dt)
-    -- プレイヤー操作
-    self:controlPlayers()
-
-    -- 各レイヤー更新
-    for name, layer in pairs(self.layers) do
-        layer:update(dt)
-    end
 end
 
 -- 描画
@@ -98,13 +94,7 @@ function Level:draw()
     lg.scale(0.25, 0.25)
     lg.translate(self.x, self.y)
 
-    -- 静的なレイヤーを描画
-    for i, name in ipairs(layerNames) do
-        self.layers[name]:draw()
-    end
-
-    -- エンティティレイヤーを描画
-    self:getLayer('entity'):draw()
+    self:drawLayers()
 
     lg.pop()
 end
@@ -145,7 +135,7 @@ function Level:controlPlayers()
             -- 各プレイヤー
             for _, player in ipairs(self.players) do
                 if player:movable() then
-                    self:movePlayer(player, direction)
+                    self:movePlayer(player, direction, self.speed)
                 end
             end
         end
@@ -153,7 +143,9 @@ function Level:controlPlayers()
 end
 
 -- プレイヤー移動処理
-function Level:movePlayer(player, direction)
+function Level:movePlayer(player, direction, duration)
+    duration = duration or 0.25
+
     if not player then
         -- プレイヤーが無効
 
@@ -188,7 +180,7 @@ function Level:movePlayer(player, direction)
                     entityOk = false
                 elseif self:moveSquare(toX, toY, toX + moveX, toY + moveY, 'entity') then
                     -- エンティティを移動できた
-                    entity:move(direction, moveX * self.unitWidth, moveY * self.unitHeight)
+                    entity:move(direction, moveX * self.unitWidth, moveY * self.unitHeight, duration)
 
                     -- 移動先のマークが一致した
                     local ground = self:getSquare(toX + moveX, toY + moveY, 'ground')
@@ -215,12 +207,30 @@ function Level:movePlayer(player, direction)
         -- プレイヤーの移動
         if ok then
             -- 移動
-            player:move(direction, moveX * self.unitWidth, moveY * self.unitHeight)
+            player:move(direction, moveX * self.unitWidth, moveY * self.unitHeight, duration)
         else
             -- 方向転換のみ
             player:resetDirection(direction)
         end
     end
+end
+
+-- 各レイヤー更新
+function Level:updateLayers(dt)
+    for name, layer in pairs(self.layers) do
+        layer:update(dt)
+    end
+end
+
+-- 各レイヤー描画
+function Level:drawLayers()
+    -- 静的なレイヤーを描画
+    for i, name in ipairs(layerNames) do
+        self.layers[name]:draw()
+    end
+
+    -- エンティティレイヤーを描画
+    self:getLayer('entity'):draw()
 end
 
 -- レイヤーを返す
@@ -341,6 +351,31 @@ function Level:loadLevel(data)
 
     -- スプライトバッチのビルド
     self:buildSpriteBatch()
+end
+
+-- プレイステート
+local Play = Level:addState 'play'
+
+-- プレイ: 更新
+function Play:update(dt)
+    -- プレイヤー操作
+    self:controlPlayers()
+
+    -- 各レイヤー更新
+    self:updateLayers(dt)
+
+    -- クリア判定
+    if self:checkClear() then
+        self:gotoState 'clear'
+    end
+end
+
+-- クリアステート
+local Clear = Level:addState 'clear'
+
+-- プレイ: 更新
+function Clear:draw()
+    lg.printf('LEVEL CLEAR', 0, 0, 800, 'center')
 end
 
 return Level
