@@ -17,35 +17,12 @@ local Game = Scene:addState('game', Scene)
 
 -- 読み込み
 function Game:load()
+    -- レベル作成
     self.level = Level(self.sprite)
-    self.level:loadLevel {
-        '  XXX   ',
-        '  X.X   ',
-        '  X XXXX',
-        'XXX* *.X',
-        'X. *@XXX',
-        'XXXX*X  ',
-        '   X.X  ',
-        '   XXX  ',
-    }
-    --[[
-    {
-        '    XXXXX             ',
-        '    X   X             ',
-        '    X*  X             ',
-        '  XXX  *XXX           ',
-        '  X  *  * X           ',
-        'XXX X XXX X     XXXXXX',
-        'X   X XXX XXXXXXX  ..X',
-        'X *  *             ..X',
-        'XXXXX XXXX X@XXXX  ..X',
-        '    X      XXX  XXXXXX',
-        '    XXXXXXXX          ',
-    }
-    ]]
-
+    self.level:loadLevel(self.levels[1])
     self.level:gotoState 'play'
 
+    -- 矩形
     self.state.drawRectangle = false
 end
 
