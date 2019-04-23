@@ -140,10 +140,21 @@ function Level:controlPlayers()
     for _, direction in ipairs(directions) do
         -- キー入力
         if lk.isDown(direction) then
-            -- 各プレイヤー
+            -- 速度
+            local rate = 1
+            local dash = false
+            if lk.isDown('lshift') or lk.isDown('rshift') then
+                -- ダッシュ
+                rate = 0.5
+                dash = true
+            elseif lk.isDown('lctrl') or lk.isDown('rctrl') then
+                -- ゆっくり
+                rate = 2
+            end
+            -- 各プレイヤー移動
             for _, player in ipairs(self.players) do
                 if player:movable() then
-                    moved = self:movePlayer(player, direction, self.speed) or moved
+                    moved = self:movePlayer(player, direction, self.speed * rate, not dash) or moved
                 end
             end
         end
@@ -156,8 +167,9 @@ function Level:controlPlayers()
 end
 
 -- プレイヤー移動処理
-function Level:movePlayer(player, direction, duration)
+function Level:movePlayer(player, direction, duration, push)
     duration = duration or 0.25
+    push = push == nil and true or push
 
     -- 移動したかどうか
     local moved = false
@@ -188,7 +200,10 @@ function Level:movePlayer(player, direction, duration)
             local entityOk = true
             local entity = self:getSquare(toX, toY, 'entity')
             if entity then
-                if not entity:movable() then
+                if not push then
+                    -- 押さない
+                    entityOk = false
+                elseif not entity:movable() then
                     -- エンティティは動かせない
                     entityOk = false
                 elseif self:getSquare(toX + moveX, toY + moveY, 'block') then
