@@ -91,8 +91,7 @@ end
 -- 描画
 function Level:draw()
     lg.push()
-    lg.scale(0.25, 0.25)
-    lg.translate(self.x, self.y)
+    --lg.translate(self.x, self.y)
 
     self:drawLayers()
 
@@ -129,6 +128,23 @@ function Level:checkClear()
         end
     end
     return clear
+end
+
+-- プレイヤー座標を返す
+function Level:getPlayerPosition()
+    local x, y = 0, 0
+
+    if #self.players > 0 then
+        for _, player in ipairs(self.players) do
+            x = x + player.x
+            y = y + player.y
+        end
+
+        x = x / #self.players
+        y = y / #self.players
+    end
+
+    return x, y
 end
 
 -- プレイヤー操作

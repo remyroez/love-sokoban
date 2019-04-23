@@ -3,6 +3,7 @@ local folderOfThisFile = (...):match("(.-)[^%/%.]+$")
 local Scene = require(folderOfThisFile .. 'Scene')
 
 -- クラス
+local Camera = require 'Camera'
 local Level = require 'Level'
 
 -- エイリアス
@@ -11,8 +12,25 @@ local lg = love.graphics
 -- ゲーム
 local Game = Scene:addState('game', Scene)
 
+-- スケール
+local scales = {
+    1,
+    0.5,
+    0.25,
+    0.1
+}
+
 -- 読み込み
 function Game:load()
+    -- カメラ
+    self.state.camera = Camera()
+    self.state.camera:setFollowLerp(0.2)
+    self.state.camera:setFollowLead(10)
+    --self.state.camera:setFollowStyle('NO_DEADZONE')
+
+    self.state.scaleLevel = 2
+    self.state.camera.scale = scales[self.state.scaleLevel]
+
     -- レベル作成
     self.state.level = Level(self.sprite)
 
@@ -32,11 +50,19 @@ end
 
 -- 更新
 function Game:update(dt)
+    -- レベル更新
     self.state.level:update(dt)
+
+    -- カメラ更新
+    self.state.camera:update(dt)
+    self.state.camera:follow(self.state.level:getPlayerPosition())
 end
 
 -- 描画
 function Game:draw()
+    -- カメラ描画アタッチ
+    self.state.camera:attach()
+
     -- レベル描画
     self.state.level:draw()
 
@@ -44,6 +70,12 @@ function Game:draw()
     if self.state.drawRectangle then
         self.state.level:drawRectangle()
     end
+
+    -- カメラ描画デタッチ
+    self.state.camera:detach()
+
+    -- カメラ描画
+    self.state.camera:draw()
 
     -- トップバー
     lg.setColor(0, 0, 0, 0.75)
@@ -72,6 +104,22 @@ function Game:keypressed(key, scancode, isrepeat)
 
             self:gotoState 'select'
         end
+
+    elseif key == 'pagedown' then
+        -- ズームアウト
+        self.state.scaleLevel = self.state.scaleLevel + 1
+        if self.state.scaleLevel > #scales then
+            self.state.scaleLevel = #scales
+        end
+        self.state.camera.scale = scales[self.state.scaleLevel]
+
+    elseif key == 'pageup' then
+        -- ズームイン
+        self.state.scaleLevel = self.state.scaleLevel - 1
+        if self.state.scaleLevel < 1 then
+            self.state.scaleLevel = 1
+        end
+        self.state.camera.scale = scales[self.state.scaleLevel]
 
     elseif key == 'home' then
         -- やりなおし
