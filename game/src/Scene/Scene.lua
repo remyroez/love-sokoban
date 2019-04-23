@@ -47,12 +47,20 @@ end
 
 -- シーン: ステート用テーブル
 function Scene:getState(name)
+    local isCurrent = name == nil
     local name = name or _getCurrentStateName(self)
 
     -- 現在のステート用テーブルが無ければ準備, load を呼ぶ
     if self.stateObjects[name] == nil then
         self.stateObjects[name] = {}
+        if isCurrent then
+            self.state = self.stateObjects[name]
+        end
         self:load()
+    else
+        if isCurrent then
+            self.state = self.stateObjects[name]
+        end
     end
 
     return self.stateObjects[name]
@@ -61,7 +69,7 @@ end
 -- シーン: ステート開始
 function Scene:enteredState(...)
     -- 現在のステート用テーブルを準備
-    self.state = self:getState()
+    self:getState()
 end
 
 -- シーン: ステート終了
