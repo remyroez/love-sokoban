@@ -18,6 +18,7 @@ function Boot:load()
     -- レベルデータ
     self.levels = love.filesystem.load('assets/levels.lua')()
     self.selectedLevel = 1
+    self.cleared = {}
 end
 
 -- 更新

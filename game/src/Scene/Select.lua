@@ -18,9 +18,27 @@ end
 
 -- 描画
 function Select:draw()
+    local cleared = self.cleared[self.selectedLevel]
+
     -- 選択しているレベル
     lg.setColor(1, 1, 1)
-    lg.printf("LEVEL: " .. self.selectedLevel, 0, self.height * 0.5, self.width, 'center')
+    lg.printf("SELECT LEVEL", 0, self.height * 0.25, self.width, 'center')
+    lg.printf('/', 0, self.height * 0.5, self.width, 'center')
+    lg.printf(#self.levels, self.width * 0.5 + 16, self.height * 0.5, self.width, 'left')
+
+    if cleared then
+        -- クリア済み
+        lg.setColor(0, 1, 0)
+    else
+        -- 未クリア
+        lg.setColor(1, 0, 0)
+    end
+    lg.printf(self.selectedLevel, -16, self.height * 0.5, self.width * 0.5, 'right')
+
+    -- クリア済み表示
+    if cleared then
+        lg.printf("*CLEARED*", 0, self.height * 0.75, self.width, 'center')
+    end
 end
 
 -- キー入力
