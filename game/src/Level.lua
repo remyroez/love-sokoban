@@ -334,6 +334,8 @@ function Level:loadLevel(data)
     -- マスのクリア
     self:clearSquares()
 
+    self.step = 0
+
     -- ダミーデータ
     data = data or {}
 

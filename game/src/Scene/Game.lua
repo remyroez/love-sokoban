@@ -51,7 +51,11 @@ function Game:draw()
 
     -- ステップ数
     lg.setColor(1, 1, 1)
-    lg.printf("STEP: " .. self.state.level.step, self.width * 0.01, self.height * 0.025, self.width, 'left')
+    local text = "STEP: " .. self.state.level.step
+    if self.cleared[self.selectedLevel] then
+        text = text .. ' / ' .. self.cleared[self.selectedLevel]
+    end
+    lg.printf(text, self.width * 0.01, self.height * 0.025, self.width, 'left')
 end
 
 -- キー入力
@@ -60,7 +64,7 @@ function Game:keypressed(key, scancode, isrepeat)
         -- レベルクリア
         if key == 'return' then
             -- 次のレベル
-            self.cleared[self.selectedLevel] = true
+            self.cleared[self.selectedLevel] = self.state.level.step
             self.selectedLevel = self.selectedLevel + 1
             if self.selectedLevel > #self.levels then
                 self.selectedLevel = 1
