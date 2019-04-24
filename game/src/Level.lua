@@ -60,7 +60,7 @@ local function directionalOffset(direction, x, y)
 end
 
 -- 初期化
-function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVertical)
+function Level:initialize(sprites, sounds, unitWidth, unitHeight, numHorizontal, numVertical)
     -- デフォルト値
     self.unitWidth = unitWidth or 128
     self.unitHeight = unitHeight or 128
@@ -74,6 +74,7 @@ function Level:initialize(sprites, unitWidth, unitHeight, numHorizontal, numVert
 
     -- 変数
     self.sprites = sprites
+    self.sounds = sounds or {}
     self.layers = {
         ground = Layer(lg.newSpriteBatch(self.sprites.spriteSheet, self.numHorizontal * self.numVertical * 2), self.unitWidth, self.unitHeight, self.numHorizontal, self.numVertical),
         block = Layer(lg.newSpriteBatch(self.sprites.spriteSheet, self.numHorizontal * self.numVertical), self.unitWidth, self.unitHeight, self.numHorizontal, self.numVertical),
@@ -228,6 +229,7 @@ function Level:movePlayer(player, direction, duration, push)
                     local ground = self:getSquare(toX + moveX, toY + moveY, 'ground')
                     if ground then
                         entity:setFit(ground.mark ~= nil and ground.mark == entity.type)
+                        if ground.mark == entity.type then self.sounds.fit:play() end
                     end
                 else
                     -- エンティティを移動できなかった
@@ -411,6 +413,16 @@ end
 -- プレイステート
 local Play = Level:addState 'play'
 
+-- プレイ: ステート開始
+function Play:enteredState(...)
+    self.sounds.ingame:play()
+end
+
+-- プレイ: ステート終了
+function Play:exitedState(...)
+    self.sounds.ingame:stop()
+end
+
 -- プレイ: 更新
 function Play:update(dt)
     -- プレイヤー操作
@@ -427,6 +439,11 @@ end
 
 -- クリアステート
 local Clear = Level:addState 'clear'
+
+-- プレイ: ステート開始
+function Clear:enteredState(...)
+    self.sounds.clear:play()
+end
 
 -- クリア: 更新
 function Clear:update(dt)

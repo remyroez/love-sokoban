@@ -8,12 +8,13 @@ local lg = love.graphics
 -- レベル選択
 local Select = Scene:addState('select', Scene)
 
--- 読み込み
-function Select:load()
-end
+-- ステート開始
+function Select:enteredState(...)
+    -- 親
+    Scene.enteredState(self, ...)
 
--- 更新
-function Select:update(dt)
+    -- ＢＧＭ再生
+    self.sounds.outgame:play()
 end
 
 -- 描画
@@ -54,6 +55,7 @@ end
 function Select:keypressed(key, scancode, isrepeat)
     if key == 'return' then
         -- ゲームへ
+        self.sounds.outgame:stop()
         self:gotoState 'game'
 
     elseif key == 'left' then

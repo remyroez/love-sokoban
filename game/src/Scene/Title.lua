@@ -16,6 +16,15 @@ end
 function Title:update(dt)
 end
 
+-- ステート開始
+function Title:enteredState(...)
+    -- 親
+    Scene.enteredState(self, ...)
+
+    -- ＢＧＭ再生
+    self.sounds.outgame:play()
+end
+
 -- 描画
 function Title:draw()
     -- クリア
