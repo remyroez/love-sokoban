@@ -32,7 +32,7 @@ function Game:load()
     self.state.camera.scale = scales[self.state.scaleLevel]
 
     -- レベル作成
-    self.state.level = Level(self.sprite)
+    self.state.level = Level(self.sprite, self.sounds)
 
     -- 矩形
     self.state.drawRectangle = false
@@ -133,6 +133,7 @@ function Game:keypressed(key, scancode, isrepeat)
                 self.selectedLevel = 1
             end
 
+            self.sounds.clear:stop()
             self:gotoState 'select'
         end
 
@@ -158,6 +159,7 @@ function Game:keypressed(key, scancode, isrepeat)
 
     elseif key == 'end' then
         -- レベル選択に戻る
+        self.sounds.ingame:stop()
         self:gotoState 'select'
 
     else

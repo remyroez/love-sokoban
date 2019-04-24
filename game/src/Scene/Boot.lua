@@ -4,6 +4,7 @@ local Scene = require(folderOfThisFile .. 'Scene')
 
 -- エイリアス
 local lg = love.graphics
+local la = love.audio
 
 -- ブート
 local Boot = Scene:addState('boot', Scene)
@@ -17,6 +18,16 @@ function Boot:load()
 
     -- スプライトシートの読み込み
     self.sprite = sbss:new('assets/spritesheet.xml')
+
+    -- サウンド
+    self.sounds = {
+        outgame = la.newSource('assets/Retro Polka.ogg', 'stream'),
+        ingame = la.newSource('assets/Retro Reggae.ogg', 'stream'),
+        clear = la.newSource('assets/Polka ident.ogg', 'static'),
+        fit = la.newSource('assets/phaseJump5.ogg', 'static'),
+    }
+    self.sounds.outgame:setLooping(true)
+    self.sounds.ingame:setLooping(true)
 
     -- フォント
     local font = 'assets/Kenney Future Square.ttf'
