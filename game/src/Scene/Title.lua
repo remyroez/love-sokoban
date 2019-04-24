@@ -23,17 +23,21 @@ function Title:draw()
 
     -- タイトル
     lg.setColor(1, 1, 1)
-    lg.printf("SOKOBAN", self.font64, 0, self.height * 0.3, self.width, 'center')
+    lg.printf("SOKOBAN", self.font128, 0, self.height * 0.3, self.width, 'center')
 
     -- キー入力待ち描画
     --lg.setColor(1.0, 0, 0.25)
-    lg.printf("PRESS ANY KEY", self.font16, 0, self.height * 0.6, self.width, 'center')
+    lg.printf("PRESS ANY KEY", self.font32, 0, self.height * 0.6, self.width, 'center')
 end
 
 -- キー入力
 function Title:keypressed(key, scancode, isrepeat)
-    if key == 'return' then
-        -- レベル選択へ
-        self:gotoState 'select'
-    end
+    -- レベル選択へ
+    self:gotoState 'select'
+end
+
+-- マウス入力
+function Title:mousepressed(x, y, button, istouch, presses)
+    -- レベル選択へ
+    self:gotoState 'select'
 end

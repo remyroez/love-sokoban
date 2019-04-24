@@ -20,13 +20,24 @@ function Boot:load()
 
     -- フォント
     local font = 'assets/Kenney Future Square.ttf'
+    self.font128 = lg.newFont(font, 128)
     self.font64 = lg.newFont(font, 64)
+    self.font32 = lg.newFont(font, 32)
     self.font16 = lg.newFont(font, 16)
 
     -- レベルデータ
     self.levels = love.filesystem.load('assets/levels.lua')()
     self.selectedLevel = 1
     self.cleared = {}
+
+    -- カラー
+    self.colors = {
+        bg =     {.42, .75, .89},
+        white =  {  1,   1,   1},
+        blue =   {.15, .67, .88},
+        pink =   {.91, .29,  .6},
+        shadow = {0, 0, 0, .33}
+    }
 end
 
 -- 更新
