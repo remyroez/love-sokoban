@@ -90,13 +90,7 @@ end
 
 -- 描画
 function Level:draw()
-    lg.push()
-    lg.scale(0.25, 0.25)
-    lg.translate(self.x, self.y)
-
     self:drawLayers()
-
-    lg.pop()
 end
 
 -- キー入力
@@ -129,6 +123,23 @@ function Level:checkClear()
         end
     end
     return clear
+end
+
+-- プレイヤー座標を返す
+function Level:getPlayerPosition()
+    local x, y = 0, 0
+
+    if #self.players > 0 then
+        for _, player in ipairs(self.players) do
+            x = x + player.x
+            y = y + player.y
+        end
+
+        x = x / #self.players
+        y = y / #self.players
+    end
+
+    return x, y
 end
 
 -- プレイヤー操作
@@ -346,6 +357,10 @@ function Level:loadLevel(data)
     self.players = {}
     self.crates = {}
 
+    local crateType = 'wood'
+    local groundType = 'stone'
+    local blockType = 'brick'
+
     for i, line in ipairs(data) do
         numVertical = i
         local length = string.len(line)
@@ -357,19 +372,23 @@ function Level:loadLevel(data)
             local cell = string.sub(line, j, j)
             if cell == ' ' then
                 -- 地面
-                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y))
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType)
             elseif cell == '.' then
                 -- マーク付き地面
-                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType('stone', 'wood')
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
             else
                 -- 地面
-                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y))
+                if cell == '&' then
+                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
+                else
+                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType)
+                end
                 if cell == 'X' then
                     -- ブロック
-                    self:setSquare(j, i, 'block', Block(self.sprites, x, y))
-                elseif cell == '*' then
+                    self:setSquare(j, i, 'block', Block(self.sprites, x, y)):setType(blockType)
+                elseif cell == '*' or cell == '&' then
                     -- 箱
-                    local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y))
+                    local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y)):setType(crateType, cell == '&')
                     crate:gotoState 'place'
                     table.insert(self.crates, crate)
                 elseif cell == '@' then
@@ -413,17 +432,6 @@ local Clear = Level:addState 'clear'
 function Clear:update(dt)
     -- 各レイヤー更新
     self:updateLayers(dt)
-end
-
--- クリア: 更新
-function Clear:draw()
-    Level.draw(self)
-
-    local width, height = lg.getDimensions()
-
-    -- クリア表示
-    lg.setColor(1.0, 0, 0)
-    lg.printf('LEVEL CLEAR', 0, height * 0.25, 800, 'center')
 end
 
 -- クリア: クリア済みかどうか
