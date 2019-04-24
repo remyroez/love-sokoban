@@ -24,23 +24,29 @@ function Select:draw()
     local cleared = self.cleared[self.selectedLevel]
 
     -- 選択しているレベル
-    lg.setColor(1, 1, 1)
-    lg.printf("SELECT LEVEL", 0, self.height * 0.25, self.width, 'center')
-    lg.printf('/', 0, self.height * 0.5, self.width, 'center')
-    lg.printf(#self.levels, self.width * 0.5 + 16, self.height * 0.5, self.width, 'left')
+    lg.setColor(self.colors.white)
+    lg.printf("SELECT LEVEL", self.font32, 0, self.height * 0.25 - self.font32:getHeight() * 0.5, self.width, 'center')
+
+    local middle = (self.height - self.font64:getHeight()) * 0.5
+    lg.printf(#self.levels, self.font64, self.width * 0.5 + self.font64:getWidth('/'), middle, self.width, 'left')
+
+    lg.setColor(1, 1, 1, 0.5)
+    lg.printf('/', self.font64, 0, middle, self.width, 'center')
 
     if cleared then
         -- クリア済み
         lg.setColor(0, 1, 0)
     else
         -- 未クリア
-        lg.setColor(1, 0, 0)
+        lg.setColor(self.colors.white)
     end
-    lg.printf(self.selectedLevel, -16, self.height * 0.5, self.width * 0.5, 'right')
+    lg.printf(self.selectedLevel, self.font64, -self.font64:getWidth('/'), middle, self.width * 0.5, 'right')
 
     -- クリア済み表示
     if cleared then
-        lg.printf("*CLEARED*", 0, self.height * 0.75, self.width, 'center')
+        lg.setColor(0, 1, 0)
+        lg.printf("BEST", self.font32, 0, self.height * 0.7, self.width, 'center')
+        lg.printf(cleared, self.font64, 0, self.height * 0.7 + self.font32:getHeight(), self.width, 'center')
     end
 end
 

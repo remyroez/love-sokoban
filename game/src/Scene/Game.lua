@@ -61,7 +61,7 @@ end
 -- 描画
 function Game:draw()
     -- クリア
-    lg.clear(.42, .75, .89)
+    lg.clear(self.colors.bg)
 
     -- カメラ描画アタッチ
     self.state.camera:attach()
@@ -80,12 +80,14 @@ function Game:draw()
     -- カメラ描画
     self.state.camera:draw()
 
+    local font = self.font64
+
     -- トップバー
     lg.setColor(.42, .75, .89, .75)
-    lg.rectangle("fill", 0, 0, self.width, self.height * 0.1)
+    lg.rectangle("fill", 0, 0, self.width, self.state.level:cleared() and self.height or font:getHeight())
 
     -- ステップ数
-    local h = self.height * 0.025
+    local h = 0--font:getHeight()
     if self.cleared[self.selectedLevel] then
         -- 過去のクリア時のステップ数と比較する
         if self.state.level.step > self.cleared[self.selectedLevel] then
@@ -97,22 +99,25 @@ function Game:draw()
         end
 
         -- 現在のステップ数
-        lg.printf(self.state.level.step, -16, h, self.width * 0.5, 'right')
+        lg.printf(self.state.level.step, font, -16, h, self.width * 0.5, 'right')
 
         -- 過去のクリア時のステップ数
-        lg.setColor(1, 1, 1)
-        lg.printf('/', 0, h, self.width, 'center')
-        lg.printf(self.cleared[self.selectedLevel], self.width * 0.5 + 16, h, self.width, 'left')
+        lg.setColor(1, 1, 1, 0.5)
+        lg.printf('/', font, 0, h, self.width, 'center')
+        lg.setColor(self.colors.white)
+        lg.printf(self.cleared[self.selectedLevel], font, self.width * 0.5 + 16, h, self.width, 'left')
     else
         -- 未クリア時
-        lg.setColor(1, 1, 1)
-        lg.printf(self.state.level.step, 0, h, self.width, 'center')
+        lg.setColor(self.colors.white)
+        lg.printf(self.state.level.step, font, 0, h, self.width, 'center')
     end
 
     -- クリア表示
     if self.state.level:cleared() then
-        lg.setColor(1.0, 0, 0)
-        lg.printf('LEVEL CLEAR', 0, self.height * 0.5, self.width, 'center')
+        lg.setColor(self.colors.white)
+        lg.printf('LEVEL ' .. self.selectedLevel, self.font128, 0, self.height * 0.5 - self.font128:getHeight(), self.width, 'center')
+        lg.printf('CLEAR', self.font128, 0, self.height * 0.5, self.width, 'center')
+        lg.printf("PRESS ANY KEY", self.font32, 0, self.height * 0.9 - self.font32:getHeight() * 0.5, self.width, 'center')
     end
 end
 
