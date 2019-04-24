@@ -87,16 +87,24 @@ function Game:draw()
     -- ステップ数
     local h = self.height * 0.025
     if self.cleared[self.selectedLevel] then
+        -- 過去のクリア時のステップ数と比較する
         if self.state.level.step > self.cleared[self.selectedLevel] then
+            -- 超えたので、赤
             lg.setColor(1, 0, 0)
         else
+            -- 超えてないので、緑
             lg.setColor(0, 1, 0)
         end
+
+        -- 現在のステップ数
         lg.printf(self.state.level.step, -16, h, self.width * 0.5, 'right')
+
+        -- 過去のクリア時のステップ数
         lg.setColor(1, 1, 1)
         lg.printf('/', 0, h, self.width, 'center')
         lg.printf(self.cleared[self.selectedLevel], self.width * 0.5 + 16, h, self.width, 'left')
     else
+        -- 未クリア時
         lg.setColor(1, 1, 1)
         lg.printf(self.state.level.step, 0, h, self.width, 'center')
     end

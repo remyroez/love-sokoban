@@ -22,7 +22,7 @@ local spriteNames = {
         red = 'environment_05.png',
         blue = 'environment_08.png',
         green = 'environment_10.png',
-        stone = 'environment_14.png',
+        metal = 'environment_14.png',
     }
 }
 

@@ -357,6 +357,10 @@ function Level:loadLevel(data)
     self.players = {}
     self.crates = {}
 
+    local crateType = 'wood'
+    local groundType = 'stone'
+    local blockType = 'brick'
+
     for i, line in ipairs(data) do
         numVertical = i
         local length = string.len(line)
@@ -368,19 +372,23 @@ function Level:loadLevel(data)
             local cell = string.sub(line, j, j)
             if cell == ' ' then
                 -- 地面
-                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y))
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType)
             elseif cell == '.' then
                 -- マーク付き地面
-                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType('stone', 'wood')
+                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
             else
                 -- 地面
-                self:setSquare(j, i, 'ground', Ground(self.sprites, x, y))
+                if cell == '&' then
+                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
+                else
+                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType)
+                end
                 if cell == 'X' then
                     -- ブロック
-                    self:setSquare(j, i, 'block', Block(self.sprites, x, y))
-                elseif cell == '*' then
+                    self:setSquare(j, i, 'block', Block(self.sprites, x, y)):setType(blockType)
+                elseif cell == '*' or cell == '&' then
                     -- 箱
-                    local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y))
+                    local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y)):setType(crateType, cell == '&')
                     crate:gotoState 'place'
                     table.insert(self.crates, crate)
                 elseif cell == '@' then
