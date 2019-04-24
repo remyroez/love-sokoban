@@ -225,11 +225,14 @@ function Level:movePlayer(player, direction, duration, push)
                     -- エンティティを移動できた
                     entity:move(direction, moveX * self.unitWidth, moveY * self.unitHeight, duration)
 
+                    -- ＳＥ
+                    self.sounds.push:seek(0)
+                    self.sounds.push:play()
+
                     -- 移動先のマークが一致した
                     local ground = self:getSquare(toX + moveX, toY + moveY, 'ground')
                     if ground then
                         entity:setFit(ground.mark ~= nil and ground.mark == entity.type)
-                        if ground.mark == entity.type then self.sounds.fit:play() end
                     end
                 else
                     -- エンティティを移動できなかった
@@ -391,6 +394,12 @@ function Level:loadLevel(data)
                 elseif cell == '*' or cell == '&' then
                     -- 箱
                     local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y)):setType(crateType, cell == '&')
+                    crate.onMoved = function ()
+                    end
+                    crate.onFit = function ()
+                        self.sounds.fit:seek(0)
+                        self.sounds.fit:play()
+                    end
                     crate:gotoState 'place'
                     table.insert(self.crates, crate)
                 elseif cell == '@' then

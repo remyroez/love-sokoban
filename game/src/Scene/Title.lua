@@ -42,11 +42,13 @@ end
 -- キー入力
 function Title:keypressed(key, scancode, isrepeat)
     -- レベル選択へ
+    self.sounds.ok:play()
     self:gotoState 'select'
 end
 
 -- マウス入力
 function Title:mousepressed(x, y, button, istouch, presses)
     -- レベル選択へ
+    self.sounds.ok:play()
     self:gotoState 'select'
 end

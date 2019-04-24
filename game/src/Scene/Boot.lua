@@ -24,10 +24,17 @@ function Boot:load()
         outgame = la.newSource('assets/Retro Polka.ogg', 'stream'),
         ingame = la.newSource('assets/Retro Reggae.ogg', 'stream'),
         clear = la.newSource('assets/Polka ident.ogg', 'static'),
-        fit = la.newSource('assets/phaseJump5.ogg', 'static'),
+        ok = la.newSource('assets/threeTone2.ogg', 'static'),
+        cancel = la.newSource('assets/twoTone2.ogg', 'static'),
+        cursor = la.newSource('assets/phaseJump5.ogg', 'static'),
+        fit = la.newSource('assets/powerUp2.ogg', 'static'),
+        push = la.newSource('assets/lowRandom.ogg', 'static'),
     }
     self.sounds.outgame:setLooping(true)
+    self.sounds.outgame:setVolume(0.5)
     self.sounds.ingame:setLooping(true)
+    self.sounds.ingame:setVolume(0.5)
+    self.sounds.clear:setVolume(0.5)
 
     -- フォント
     local font = 'assets/Kenney Future Square.ttf'

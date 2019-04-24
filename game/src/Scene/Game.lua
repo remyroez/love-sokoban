@@ -133,6 +133,7 @@ function Game:keypressed(key, scancode, isrepeat)
                 self.selectedLevel = 1
             end
 
+            self.sounds.ok:play()
             self.sounds.clear:stop()
             self:gotoState 'select'
         end
@@ -155,10 +156,14 @@ function Game:keypressed(key, scancode, isrepeat)
 
     elseif key == 'home' then
         -- やりなおし
+        self.sounds.ok:seek(0)
+        self.sounds.ok:play()
         self:gotoState 'game'
 
     elseif key == 'end' then
         -- レベル選択に戻る
+        self.sounds.cancel:seek(0)
+        self.sounds.cancel:play()
         self.sounds.ingame:stop()
         self:gotoState 'select'
 

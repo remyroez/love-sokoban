@@ -55,6 +55,8 @@ end
 function Select:keypressed(key, scancode, isrepeat)
     if key == 'return' then
         -- ゲームへ
+        self.sounds.ok:seek(0)
+        self.sounds.ok:play()
         self.sounds.outgame:stop()
         self:gotoState 'game'
 
@@ -64,6 +66,8 @@ function Select:keypressed(key, scancode, isrepeat)
         if self.selectedLevel < 1 then
             self.selectedLevel = #self.levels
         end
+        self.sounds.cursor:seek(0)
+        self.sounds.cursor:play()
 
     elseif key == 'right' then
         -- 次のレベル
@@ -71,5 +75,7 @@ function Select:keypressed(key, scancode, isrepeat)
         if self.selectedLevel > #self.levels then
             self.selectedLevel = 1
         end
+        self.sounds.cursor:seek(0)
+        self.sounds.cursor:play()
     end
 end
