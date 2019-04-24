@@ -18,6 +18,9 @@ end
 
 -- 描画
 function Select:draw()
+    -- クリア
+    lg.clear(.42, .75, .89)
+
     local cleared = self.cleared[self.selectedLevel]
 
     -- 選択しているレベル

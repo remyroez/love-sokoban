@@ -24,9 +24,9 @@ local scales = {
 function Game:load()
     -- カメラ
     self.state.camera = Camera()
-    self.state.camera:setFollowLerp(0.2)
-    self.state.camera:setFollowLead(10)
-    --self.state.camera:setFollowStyle('NO_DEADZONE')
+    --self.state.camera:setFollowLerp(0.2)
+    --self.state.camera:setFollowLead(10)
+    self.state.camera:setFollowStyle('NO_DEADZONE')
 
     self.state.scaleLevel = 2
     self.state.camera.scale = scales[self.state.scaleLevel]
@@ -60,6 +60,9 @@ end
 
 -- 描画
 function Game:draw()
+    -- クリア
+    lg.clear(.42, .75, .89)
+
     -- カメラ描画アタッチ
     self.state.camera:attach()
 
@@ -78,16 +81,31 @@ function Game:draw()
     self.state.camera:draw()
 
     -- トップバー
-    lg.setColor(0, 0, 0, 0.75)
+    lg.setColor(.42, .75, .89, .75)
     lg.rectangle("fill", 0, 0, self.width, self.height * 0.1)
 
     -- ステップ数
-    lg.setColor(1, 1, 1)
-    local text = "STEP: " .. self.state.level.step
+    local h = self.height * 0.025
     if self.cleared[self.selectedLevel] then
-        text = text .. ' / ' .. self.cleared[self.selectedLevel]
+        if self.state.level.step > self.cleared[self.selectedLevel] then
+            lg.setColor(1, 0, 0)
+        else
+            lg.setColor(0, 1, 0)
+        end
+        lg.printf(self.state.level.step, -16, h, self.width * 0.5, 'right')
+        lg.setColor(1, 1, 1)
+        lg.printf('/', 0, h, self.width, 'center')
+        lg.printf(self.cleared[self.selectedLevel], self.width * 0.5 + 16, h, self.width, 'left')
+    else
+        lg.setColor(1, 1, 1)
+        lg.printf(self.state.level.step, 0, h, self.width, 'center')
     end
-    lg.printf(text, self.width * 0.01, self.height * 0.025, self.width, 'left')
+
+    -- クリア表示
+    if self.state.level:cleared() then
+        lg.setColor(1.0, 0, 0)
+        lg.printf('LEVEL CLEAR', 0, self.height * 0.5, self.width, 'center')
+    end
 end
 
 -- キー入力

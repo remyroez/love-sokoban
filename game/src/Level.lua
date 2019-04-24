@@ -90,12 +90,7 @@ end
 
 -- 描画
 function Level:draw()
-    lg.push()
-    --lg.translate(self.x, self.y)
-
     self:drawLayers()
-
-    lg.pop()
 end
 
 -- キー入力
@@ -429,17 +424,6 @@ local Clear = Level:addState 'clear'
 function Clear:update(dt)
     -- 各レイヤー更新
     self:updateLayers(dt)
-end
-
--- クリア: 更新
-function Clear:draw()
-    Level.draw(self)
-
-    local width, height = lg.getDimensions()
-
-    -- クリア表示
-    lg.setColor(1.0, 0, 0)
-    lg.printf('LEVEL CLEAR', 0, height * 0.25, 800, 'center')
 end
 
 -- クリア: クリア済みかどうか
