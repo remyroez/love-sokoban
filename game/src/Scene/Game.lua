@@ -146,6 +146,9 @@ function Game:keypressed(key, scancode, isrepeat)
         self.state.scaleLevel = self.state.scaleLevel + 1
         if self.state.scaleLevel > #scales then
             self.state.scaleLevel = #scales
+        else
+            self.sounds.zoom:seek(0)
+            self.sounds.zoom:play()
         end
         self.state.camera.scale = scales[self.state.scaleLevel]
 
@@ -154,6 +157,9 @@ function Game:keypressed(key, scancode, isrepeat)
         self.state.scaleLevel = self.state.scaleLevel - 1
         if self.state.scaleLevel < 1 then
             self.state.scaleLevel = 1
+        else
+            self.sounds.zoom:seek(0)
+            self.sounds.zoom:play()
         end
         self.state.camera.scale = scales[self.state.scaleLevel]
 
