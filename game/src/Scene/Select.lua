@@ -32,7 +32,7 @@ function Select:draw()
     lg.printf(#self.levels, self.font64, self.width * 0.5 + self.font64:getWidth('/'), middle, self.width, 'left')
 
     lg.setColor(1, 1, 1, 0.5)
-    lg.printf('/', self.font64, 0, middle, self.width, 'center')
+    lg.printf('/', self.font32, 0, (self.height - self.font32:getHeight()) * 0.5, self.width, 'center')
 
     if cleared then
         -- クリア済み

@@ -84,7 +84,10 @@ function Game:draw()
 
     -- トップバー
     lg.setColor(.42, .75, .89, .75)
-    lg.rectangle("fill", 0, 0, self.width, self.state.level:cleared() and self.height or font:getHeight())
+    --lg.rectangle("fill", 0, 0, self.width, self.state.level:cleared() and self.height or font:getHeight())
+
+    lg.setColor(self.colors.white)
+    lg.printf(' LEVEL ' .. self.selectedLevel, self.font16, 0, 0, self.width, 'left')
 
     -- ステップ数
     local h = 0--font:getHeight()
@@ -103,7 +106,7 @@ function Game:draw()
 
         -- 過去のクリア時のステップ数
         lg.setColor(1, 1, 1, 0.5)
-        lg.printf('/', font, 0, h, self.width, 'center')
+        lg.printf('/', self.font32, 0, (self.font64:getHeight() - self.font32:getHeight()) * 0.5, self.width, 'center')
         lg.setColor(self.colors.white)
         lg.printf(self.cleared[self.selectedLevel], font, self.width * 0.5 + 16, h, self.width, 'left')
     else
@@ -115,7 +118,7 @@ function Game:draw()
     -- クリア表示
     if self.state.level:cleared() then
         lg.setColor(self.colors.white)
-        lg.printf('LEVEL ' .. self.selectedLevel, self.font128, 0, self.height * 0.5 - self.font128:getHeight(), self.width, 'center')
+        lg.printf('LEVEL', self.font128, 0, self.height * 0.5 - self.font128:getHeight(), self.width, 'center')
         lg.printf('CLEAR', self.font128, 0, self.height * 0.5, self.width, 'center')
         lg.printf("PRESS ANY KEY", self.font32, 0, self.height * 0.9 - self.font32:getHeight() * 0.5, self.width, 'center')
     end
