@@ -317,7 +317,7 @@ return {
 		"X ****    XXXXXX*XX   X.XX.X",
 		"XX    XX              X....X",
 		"_XX  XXXXXXXXXXXXXXX   ....X",
-		"__X  X_____________XXXXX_ XX",
+		"__X  X_____________XXXXX  XX",
 		"__XXXX_________________XXXX"
 	},
 	{
