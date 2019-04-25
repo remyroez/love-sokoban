@@ -31,11 +31,16 @@ function Boot:load()
         zoom = la.newSource('assets/lowRandom.ogg', 'static'),
         push = la.newSource('assets/hurt2.ogg', 'static'),
     }
+
+    -- ループ設定
     self.sounds.outgame:setLooping(true)
-    self.sounds.outgame:setVolume(0.5)
     self.sounds.ingame:setLooping(true)
+
+    -- 音量の調整
+    self.sounds.outgame:setVolume(0.5)
     self.sounds.ingame:setVolume(0.5)
     self.sounds.clear:setVolume(0.5)
+    self.sounds.push:setVolume(0.5)
 
     -- フォント
     local font = 'assets/Kenney Future Square.ttf'
