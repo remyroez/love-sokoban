@@ -80,6 +80,7 @@ function Level:initialize(sprites, sounds, unitWidth, unitHeight, numHorizontal,
         block = Layer(lg.newSpriteBatch(self.sprites.spriteSheet, self.numHorizontal * self.numVertical), self.unitWidth, self.unitHeight, self.numHorizontal, self.numVertical),
         entity = Layer(nil, unitWidth, unitHeight, numHorizontal, numVertical)
     }
+    self.onClear = nil
 
     -- モジュールの初期化
     Rectangle.initialize(self, math.ceil(self.unitWidth / 2), math.ceil(self.unitHeight / 2), self:pixelWidth(), self:pixelHeight())
@@ -460,6 +461,9 @@ local Clear = Level:addState 'clear'
 -- プレイ: ステート開始
 function Clear:enteredState(...)
     self.sounds.clear:play()
+    if type(self.onClear) == 'function' then
+        self.onClear()
+    end
 end
 
 -- クリア: 更新
