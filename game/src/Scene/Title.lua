@@ -85,7 +85,7 @@ function Title:draw()
 
     -- キー入力待ち描画
     if self.state.visiblePressAnyKey and not self.state.action then
-        lg.printf("PRESS ANY KEY", self.font32, 0, self.height * 0.6, self.width, 'center')
+        lg.printf("PRESS ANY KEY", self.font32, 0, self.height * 0.7, self.width, 'center')
     end
 end
 
