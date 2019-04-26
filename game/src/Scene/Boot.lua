@@ -66,6 +66,6 @@ end
 
 -- 更新
 function Boot:update()
-    -- タイトルへ
-    self:gotoState 'title'
+    -- スプラッシュスクリーンへ
+    self:gotoState 'splash'
 end
