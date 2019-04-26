@@ -236,6 +236,10 @@ function Game:keypressed(key, scancode, isrepeat)
             self.state.action = true
         end
 
+    elseif key == 'backspace' then
+        -- アンドゥ
+        self.state.level:undo(0.1)
+
     elseif key == 'pagedown' then
         -- ズームアウト
         self.state.scaleLevel = self.state.scaleLevel + 1
