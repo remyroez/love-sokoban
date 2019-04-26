@@ -43,6 +43,7 @@ function Game:load()
 
     -- 表示フラグ
     self.state.visiblePressAnyKey = true
+    self.state.help = true
 end
 
 -- ステート開始
@@ -172,8 +173,8 @@ function Game:draw()
         lg.printf(self.state.level.step, font, 0, h, self.width, 'center')
     end
 
-    -- クリア表示
     if self.state.level:cleared() then
+        -- クリア表示
         lg.setColor(self.colors.white)
         lg.push()
         lg.translate(self.width * 0.5, self.height * 0.5)
@@ -184,6 +185,16 @@ function Game:draw()
         if self.state.visiblePressAnyKey and not self.state.action then
             lg.printf("PRESS ANY KEY", self.font32, 0, self.height * 0.9 - self.font32:getHeight() * 0.5, self.width, 'center')
         end
+    elseif self.state.help then
+        -- ヘルプ
+        lg.printf(
+            'F1: TOGGLE HELP\nBACKSPACE: UNDO / HOME: RESET / END: RETURN\nPAGE-UP: ZOOM-IN / PAGE-DOWN: ZOOM-OUT',
+            self.font16,
+            -self.font16:getWidth(' '),
+            self.height - self.font16:getHeight() * 3,
+            self.width,
+            'right'
+        )
     end
 
     -- フェード
@@ -293,6 +304,10 @@ function Game:keypressed(key, scancode, isrepeat)
             'alpha'
         )
         self.state.action = true
+
+    elseif key == 'f1' then
+        -- ヘルプ
+        self.state.help = not self.state.help
 
     else
         -- レベル入力

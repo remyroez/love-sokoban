@@ -36,6 +36,14 @@ local directions = {
     'right'
 }
 
+-- 逆方向
+local reverseDirections = {
+    up = 'down',
+    down = 'up',
+    left = 'right',
+    right = 'left'
+}
+
 -- 方向チェック用
 local directionChecks = {
     up = 1,
@@ -81,6 +89,8 @@ function Level:initialize(sprites, sounds, unitWidth, unitHeight, numHorizontal,
         entity = Layer(nil, unitWidth, unitHeight, numHorizontal, numVertical)
     }
     self.onClear = nil
+
+    self.undos = {}
 
     -- モジュールの初期化
     Rectangle.initialize(self, math.ceil(self.unitWidth / 2), math.ceil(self.unitHeight / 2), self:pixelWidth(), self:pixelHeight())
@@ -149,13 +159,15 @@ function Level:controlPlayers()
     -- 移動したかどうか
     local moved = false
 
+    -- 速度
+    local rate = 1
+    local dash = false
+
     -- 各方向
     for _, direction in ipairs(directions) do
         -- キー入力
         if lk.isDown(direction) then
             -- 速度
-            local rate = 1
-            local dash = false
             if lk.isDown('lshift') or lk.isDown('rshift') then
                 -- ダッシュ
                 rate = 0.5
@@ -176,6 +188,17 @@ function Level:controlPlayers()
     -- 移動したらステップをカウントアップ
     if moved then
         self.step = self.step + 1
+    elseif lk.isDown('backspace') then
+        local ok = true
+        for _, player in ipairs(self.players) do
+            if not player:movable() then
+                ok = false
+                break
+            end
+        end
+        if ok then
+            self:undo(self.speed * rate)
+        end
     end
 end
 
@@ -183,6 +206,8 @@ end
 function Level:movePlayer(player, direction, duration, push)
     duration = duration or 0.25
     push = push == nil and true or push
+
+    local action = {}
 
     -- 移動したかどうか
     local moved = false
@@ -230,11 +255,29 @@ function Level:movePlayer(player, direction, duration, push)
                     self.sounds.push:seek(0)
                     self.sounds.push:play()
 
+                    local beforeFit = entity.fit
+
                     -- 移動先のマークが一致した
                     local ground = self:getSquare(toX + moveX, toY + moveY, 'ground')
                     if ground then
                         entity:setFit(ground.mark ~= nil and ground.mark == entity.type)
                     end
+
+                    table.insert(
+                        action,
+                        {
+                            target = entity,
+                            fromX = toX,
+                            fromY = toY,
+                            toX = toX + moveX,
+                            toY = toY + moveY,
+                            direction = direction,
+                            moveX = moveX * self.unitWidth,
+                            moveY = moveY * self.unitHeight,
+                            layer = 'entity',
+                            fit = beforeFit
+                        }
+                    )
                 else
                     -- エンティティを移動できなかった
                     entityOk = false
@@ -256,6 +299,20 @@ function Level:movePlayer(player, direction, duration, push)
         if ok then
             -- 移動
             player:move(direction, moveX * self.unitWidth, moveY * self.unitHeight, duration)
+            table.insert(
+                action,
+                {
+                    target = player,
+                    fromX = fromX,
+                    fromY = fromY,
+                    toX = toX,
+                    toY = toY,
+                    direction = direction,
+                    moveX = moveX * self.unitWidth,
+                    moveY = moveY * self.unitHeight,
+                    layer = 'entity'
+                }
+            )
             moved = true
         else
             -- 方向転換のみ
@@ -263,7 +320,43 @@ function Level:movePlayer(player, direction, duration, push)
         end
     end
 
+    -- アンドゥリストに入れる
+    if moved then
+        table.insert(self.undos, action)
+    end
+
     return moved
+end
+
+-- アンドゥ
+function Level:undo(duration)
+    duration = duration or 0.25
+
+    -- アクションが無ければ何もしない
+    if #self.undos == 0 then
+        return
+    end
+
+    -- 最後のアクションを取り出す
+    local actions = self.undos[#self.undos]
+    table.remove(self.undos)
+
+    for i = 1, #actions do
+        local action = actions[#actions + 1 - i]
+        print(tostring(action), i, #actions + 1 - i)
+        self:moveSquare(action.toX, action.toY, action.fromX, action.fromY, action.layer)
+        action.target:move(
+            action.direction,
+            -action.moveX,
+            -action.moveY,
+            duration
+        )
+        if action.fit ~= nil then
+            action.target:setFit(action.fit)
+        end
+    end
+
+    self.step = self.step - 1
 end
 
 -- 各レイヤー更新
@@ -352,6 +445,7 @@ function Level:loadLevel(data)
     self:clearSquares()
 
     self.step = 0
+    self.undos = {}
 
     -- ダミーデータ
     data = data or {}
