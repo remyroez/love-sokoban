@@ -80,6 +80,7 @@ function Level:initialize(sprites, sounds, unitWidth, unitHeight, numHorizontal,
         block = Layer(lg.newSpriteBatch(self.sprites.spriteSheet, self.numHorizontal * self.numVertical), self.unitWidth, self.unitHeight, self.numHorizontal, self.numVertical),
         entity = Layer(nil, unitWidth, unitHeight, numHorizontal, numVertical)
     }
+    self.onClear = nil
 
     -- モジュールの初期化
     Rectangle.initialize(self, math.ceil(self.unitWidth / 2), math.ceil(self.unitHeight / 2), self:pixelWidth(), self:pixelHeight())
@@ -225,11 +226,14 @@ function Level:movePlayer(player, direction, duration, push)
                     -- エンティティを移動できた
                     entity:move(direction, moveX * self.unitWidth, moveY * self.unitHeight, duration)
 
+                    -- ＳＥ
+                    self.sounds.push:seek(0)
+                    self.sounds.push:play()
+
                     -- 移動先のマークが一致した
                     local ground = self:getSquare(toX + moveX, toY + moveY, 'ground')
                     if ground then
                         entity:setFit(ground.mark ~= nil and ground.mark == entity.type)
-                        if ground.mark == entity.type then self.sounds.fit:play() end
                     end
                 else
                     -- エンティティを移動できなかった
@@ -379,25 +383,39 @@ function Level:loadLevel(data)
                 -- マーク付き地面
                 self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
             else
-                -- 地面
-                if cell == '&' then
-                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
-                else
-                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType)
-                end
+                -- エンティティ
+                local set = true
                 if cell == 'X' then
                     -- ブロック
                     self:setSquare(j, i, 'block', Block(self.sprites, x, y)):setType(blockType)
                 elseif cell == '*' or cell == '&' then
                     -- 箱
                     local crate = self:setSquare(j, i, 'entity', Crate(self.sprites, x, y)):setType(crateType, cell == '&')
+                    crate.onMoved = function ()
+                    end
+                    crate.onFit = function ()
+                        self.sounds.fit:seek(0)
+                        self.sounds.fit:play()
+                    end
                     crate:gotoState 'place'
                     table.insert(self.crates, crate)
                 elseif cell == '@' then
                     -- プレイヤー
-                    local player = self:setSquare(j, i, 'entity', Player(self.sprites, x, y, 128, 128))
+                    local player = self:setSquare(j, i, 'entity', Player(self.sprites, x, y, self.unitWidth, self.unitHeight))
                     player:gotoState('stand', 'down')
                     table.insert(self.players, player)
+                else
+                    -- 空
+                    set = false
+                end
+
+                -- 地面
+                if not set then
+                    -- 何も置かなかったので、地面も置かない
+                elseif cell == '&' then
+                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType, crateType)
+                else
+                    self:setSquare(j, i, 'ground', Ground(self.sprites, x, y)):setType(groundType)
                 end
             end
         end
@@ -443,6 +461,9 @@ local Clear = Level:addState 'clear'
 -- プレイ: ステート開始
 function Clear:enteredState(...)
     self.sounds.clear:play()
+    if type(self.onClear) == 'function' then
+        self.onClear()
+    end
 end
 
 -- クリア: 更新

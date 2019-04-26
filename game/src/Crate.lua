@@ -56,6 +56,9 @@ function Crate:initialize(sprite, x, y, w, h)
     -- 初期座標
     self.begin_x = self.x
     self.begin_y = self.y
+
+    self.onMoved = nil
+    self.onFit = nil
 end
 
 -- 座標のリセット
@@ -151,6 +154,12 @@ function Move:update(dt)
     self.dirty = true
 
     if not self:isMoving() then
+        if type(self.onMoved) == 'function' then
+            self.onMoved()
+        end
+        if self.fit and type(self.onFit) == 'function' then
+            self.onFit()
+        end
         self:popState()
     end
 end
@@ -158,6 +167,11 @@ end
 -- 移動: 移動できるかどうか返す
 function Move:movable()
     return false
+end
+
+-- 移動: 現在のスプライト名を返す
+function Move:getCurrentSpriteName()
+    return spriteNames[self.type]['default']
 end
 
 return Crate

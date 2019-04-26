@@ -21,13 +21,26 @@ function Boot:load()
 
     -- サウンド
     self.sounds = {
-        outgame = la.newSource('assets/Retro Polka.ogg', 'stream'),
-        ingame = la.newSource('assets/Retro Reggae.ogg', 'stream'),
+        outgame = la.newSource('assets/Retro Polka.ogg', 'static'),
+        ingame = la.newSource('assets/Retro Reggae.ogg', 'static'),
         clear = la.newSource('assets/Polka ident.ogg', 'static'),
-        fit = la.newSource('assets/phaseJump5.ogg', 'static'),
+        ok = la.newSource('assets/threeTone2.ogg', 'static'),
+        cancel = la.newSource('assets/twoTone2.ogg', 'static'),
+        cursor = la.newSource('assets/phaseJump5.ogg', 'static'),
+        fit = la.newSource('assets/powerUp2.ogg', 'static'),
+        zoom = la.newSource('assets/lowRandom.ogg', 'static'),
+        push = la.newSource('assets/hurt2.ogg', 'static'),
     }
+
+    -- ループ設定
     self.sounds.outgame:setLooping(true)
     self.sounds.ingame:setLooping(true)
+
+    -- 音量の調整
+    self.sounds.outgame:setVolume(0.5)
+    self.sounds.ingame:setVolume(0.5)
+    self.sounds.clear:setVolume(0.5)
+    self.sounds.push:setVolume(0.5)
 
     -- フォント
     local font = 'assets/Kenney Future Square.ttf'

@@ -53,7 +53,7 @@ function Player:initialize(sprite, x, y, w, h)
     Movement.initialize(self)
 
     self:resetDirection()
-    self:resetAnimationDuration(0.25 / 4)
+    self:resetAnimationDuration(0.025)
 
     -- 初期座標
     self.begin_x = self.x
