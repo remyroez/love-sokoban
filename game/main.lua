@@ -47,7 +47,7 @@ function love.keypressed(key, scancode, isrepeat)
     elseif key == 'f5' then
         -- リスタート
         love.event.quit('restart')
-    elseif key == 'f1' then
+    elseif key == 'f12' then
         -- ステートの描画
         printStates = not printStates
     else
